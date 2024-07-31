@@ -164,7 +164,7 @@ function assignTasks(userId, employee_id, shift_type, page) {
     let today = frappe.datetime.get_today();
 
     frappe.call({
-        method: 'uvtech_hrms.hotel.page.task_list.task_list.assign_and_get_task',
+        method: 'uvtech_hms.hotel.page.task_list.task_list.assign_and_get_task',
         args: {
             user: frappe.session.user,
             employee_id: employee_id,
@@ -192,7 +192,7 @@ function assignTasks(userId, employee_id, shift_type, page) {
 
 function uploadFilesAndCompleteTask(files, taskId) {
     frappe.call({
-        method: 'uvtech_hrms.hotel.page.task_list.task_list.upload_files_and_change_task_status',
+        method: 'uvtech_hms.hotel.page.task_list.task_list.upload_files_and_change_task_status',
         args: {
             files: files,
             taskId: taskId
