@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2024-07-30 13:01:12.288569",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2024-07-30 13:01:12.288569",
+ "modified_by": "Administrator",
+ "module": "Hotel",
+ "name": "task-list",
+ "owner": "Administrator",
+ "page_name": "task-list",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Task List"
+}

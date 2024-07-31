@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn-primary {
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px; /* Optional: adds rounded corners */
+        }
+        .btn-primary:hover {
+            background-color: #45a049; /* Darker green when hovered */
+        }
+    </style>
+</head>
+<body>
+
+<!-- <h2 style="text-align: center;">Task Table</h2> -->
+
+<table>
+    <thead>
+        <tr>
+            <th>Subject</th>
+            <th>Task Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if data.length %}
+        {% for record in data %}
+            <tr>
+                <td>{{ record.subject }}</td>
+                <td>
+                    <button button id={{ record.name }} class="btn btn-primary">Complete</button>
+                </td>
+            </tr>
+        {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="2">No tasks found</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+</body>
+</html>
