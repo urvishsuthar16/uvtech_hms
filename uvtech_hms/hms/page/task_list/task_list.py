@@ -1,22 +1,42 @@
 import frappe
 import json
 
+# tasks = frappe.get_all('Task', fields=['name', 'status','subject'])
+# users = frappe.get_all('User', fields=['name'])
+
+# for user in users:
+#     for task in tasks:
+#         new_task = frappe.get_doc({
+#             'doctype': 'Task',
+#             'subject': task['subject'],
+#             'status': 'Open'
+#         })
+        
+#         new_task.insert()
+#         todo = frappe.get_doc({
+#             'doctype': 'ToDo',
+#             'description': f'Please check the new task: {new_task.subject}',
+#             'reference_type': 'Task',
+#             'reference_name': new_task.name,
+#             "allocated_to" : user,
+#             'owner': user['name']
+#         })
+#         todo.insert()       
+    
 @frappe.whitelist()
-def assign_and_get_task(user,employee_id,shift_type):
-    # frappe.throw(shift_type)
-    #create project and assign
+def assign_and_get_task(user,shift_type,employee_id):
     project_name=f"{employee_id}/{frappe.utils.getdate()}"
     todays_date=frappe.utils.getdate()
-    # frappe.set_user('Administrator')
     exists_pro=frappe.db.exists('Project',{'project_name':project_name})
     if not exists_pro:
+        frappe.db.set_value('Employee',employee_id,"default_shift",shift_type)
         project=frappe.new_doc('Project')
         project.project_name=project_name
         project.project_template="Main Task Template"
         project.expected_start_date=todays_date
         project.expected_end_date=todays_date
         project.project_type='Internal'
-        project.custom_shift_type = shift_type
+        # project.custom_shift_type = shift_type
         project.insert(ignore_permissions=True)
        
 
@@ -35,8 +55,7 @@ def assign_and_get_task(user,employee_id,shift_type):
         share.read = 1
         share.write=1
         share.insert(ignore_permissions=True)
-    # frappe.set_user(user)
-    # render all todays tasks
+        
     todos = frappe.get_all('ToDo',
         filters={
             'reference_type': 'Project',
@@ -68,6 +87,9 @@ def upload_files_and_change_task_status(files,taskId):
     task=frappe.get_doc('Task',taskId)
     task.status='Completed'
     for i in files:
-        task.append('custom_images',{'image':i})
+        # frappe.throw(i)
+        task.append('custom_images',{'images':i})
     task.save()
     frappe.msgprint("Task has successfully completed")
+
+

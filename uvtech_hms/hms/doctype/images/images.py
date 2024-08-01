@@ -1,9 +1,9 @@
-# Copyright (c) 2024, yog solutions and contributors
+# Copyright (c) 2024, gg and contributors
 # For license information, please see license.txt
 
 # import frappe
 from frappe.model.document import Document
 
 
-class TaskImages(Document):
+class Images(Document):
 	pass

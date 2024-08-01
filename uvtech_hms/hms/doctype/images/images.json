@@ -1,33 +1,26 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2024-07-30 15:43:58.718825",
+ "creation": "2024-08-01 12:47:52.405669",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "section_break_01wq",
-  "image"
+  "images"
  ],
  "fields": [
   {
-   "fieldname": "section_break_01wq",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "image",
+   "fieldname": "images",
    "fieldtype": "Attach",
-   "in_list_view": 1,
-   "label": "Image"
+   "label": "Images"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-07-30 15:44:21.550940",
+ "modified": "2024-08-01 18:51:25.355288",
  "modified_by": "Administrator",
- "module": "Hotel",
- "name": "Task Images",
+ "module": "hms",
+ "name": "Images",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
