@@ -173,7 +173,7 @@ function uploadFilesAndCompleteTask(files, taskId) {
 			taskId: taskId
 		},
 		callback: function (response) {
-			console.log(response.message, "Task Completed");
+			frappe.msgprint("Task has successfully completed")
 			// window.location.reload();
 		},
 		error: function (err) {

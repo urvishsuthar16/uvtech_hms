@@ -90,6 +90,6 @@ def upload_files_and_change_task_status(files,taskId):
         # frappe.throw(i)
         task.append('custom_images',{'images':i})
     task.save()
-    frappe.msgprint("Task has successfully completed")
+    # frappe.msgprint("Task has successfully completed")
 
 
