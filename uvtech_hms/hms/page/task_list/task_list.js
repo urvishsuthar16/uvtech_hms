@@ -9,6 +9,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	let current_shift_type = null;
 	let userId = null;
 	let employee_name = null
+	var currentHour = new Date().getHours();
 
 
 	let employee_field = page.add_field({
@@ -57,7 +58,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 							fieldtype: 'Link',
 							label: 'Shift Type',
 							options: 'Shift Type',
-							default: "Morning",
+							default: currentHour < 12 ? "Morning" : "Evening",
 							reqd: 1
 						}
 					],
