@@ -231,9 +231,9 @@ fixtures = [
 
 	{"dt": "Custom Field", "filters": [
 		[
-			"name", "in", [
+			"module", "in", [
 				
-                "custom_shift_type"
+                "hms"
 			]
 		]
 	]},

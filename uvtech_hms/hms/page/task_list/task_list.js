@@ -8,16 +8,24 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	let current_employee_id = null;
 	let current_shift_type = null;
 	let userId = null;
+	let employee_name = null
 
-	
+
 	let employee_field = page.add_field({
 		label: 'Employee',
 		fieldtype: 'Link',
 		fieldname: 'employee',
 		options: 'Employee',
-		change() {
-			current_employee_id = employee_field.get_value();
-		}
+		read_only: 1
+
+	});
+	let employee_name_field = page.add_field({
+		label: 'Employee Name',
+		fieldtype: 'Data',
+		fieldname: 'employee_name',
+		default: employee_name,
+		read_only: 1
+
 	});
 
 	let shift_filter_field = page.add_field({
@@ -25,21 +33,22 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		fieldtype: 'Link',
 		fieldname: 'shift_filter',
 		options: "Shift Type",
-		read_only:1
+		read_only: 1
 	});
 
-	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name',"default_shift"])
+	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', "default_shift", "employee_name"])
 		.then(response => {
 			userId = response.message.name;
 			console.log("User ID:", userId);
 
 			employee_field.set_value(userId);
 			current_employee_id = userId;
+			employee_name_field.set_value(response.message.employee_name);
 
 			if (response.message.default_shift) {
 				shift_filter_field.set_value(response.message.default_shift);
 				assignTasks(userId, current_employee_id, response.message.default_shift, page);
-			}else{
+			} else {
 				var shift_dialog = new frappe.ui.Dialog({
 					title: 'Select Shift Type',
 					fields: [
@@ -48,6 +57,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 							fieldtype: 'Link',
 							label: 'Shift Type',
 							options: 'Shift Type',
+							default: "Morning",
 							reqd: 1
 						}
 					],
@@ -56,7 +66,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						current_shift_type = shift_dialog.get_value('shift_type');
 						shift_dialog.hide();
 						shift_filter_field.set_value(current_shift_type);
-						
+
 						if (userId) {
 							assignTasks(userId, current_employee_id, current_shift_type, page);
 						} else {
@@ -64,7 +74,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						}
 					}
 				});
-			
+
 				shift_dialog.show();
 			}
 		})
@@ -82,9 +92,9 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 					fieldtype: 'Table',
 					fieldname: 'files',
 					label: 'Child Table',
-					// reqd: 1,
+					reqd: 1,
 					in_list_view: 1,
-					data: [], // You can set default data here if needed
+					data: [{ "image": "" }], // You can set default data here if needed
 					fields: [
 						{
 							fieldname: 'image',
@@ -101,12 +111,12 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 				if (values.files && values.files.length) {
 					let fileslist = values.files.map(row => row.image);
-					uploadFilesAndCompleteTask(fileslist, taskId);
+					uploadFilesAndCompleteTask(fileslist, taskId, frappe.session.user);
 					window.location.reload();
 
 				} else {
 					console.log('No images uploaded.');
-					uploadFilesAndCompleteTask([], taskId);
+					uploadFilesAndCompleteTask([], taskId, frappe.session.user);
 					window.location.reload();
 				}
 
@@ -115,7 +125,24 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		});
 
 		dialog.show();
+	// 	$('button.text-muted.btn.btn-default.icon-btn').click(
+	// 		()=>{$('[data-fieldname="barcode"]').click()}
+	//    )
+		// $('div.form-group frappe-control input-max-width').click(
+		// 	()=>{$('[data-fieldtype="Attach"]').click()}
+		// )
+		// // Simulate clicks after dialog shows
+		// setTimeout(function () {
+		// 	var element = $('[data-fieldtype="Attach"]');
+		// 	element.click(); // First click
+		// 	setTimeout(function () {
+		// 		element.click(); // Second click after 100 ms
+		// 		console.log("click in" )
+		// 	}, 10);
+		// 	console.log("click out" )
+		// }, 1);
 	});
+
 };
 
 function assignTasks(userId, employee_id, shift_type, page) {
@@ -129,7 +156,7 @@ function assignTasks(userId, employee_id, shift_type, page) {
 			shift_type: shift_type
 		},
 		callback: async function (response) {
-			
+
 			try {
 				console.log(response.message, "Today's Task");
 				let tasks = response.message;
@@ -165,12 +192,13 @@ function assignTasks(userId, employee_id, shift_type, page) {
 }
 
 
-function uploadFilesAndCompleteTask(files, taskId) {
+function uploadFilesAndCompleteTask(files, taskId, user) {
 	frappe.call({
 		method: 'uvtech_hms.hms.page.task_list.task_list.upload_files_and_change_task_status',
 		args: {
 			files: files,
-			taskId: taskId
+			taskId: taskId,
+			user: user
 		},
 		callback: function (response) {
 			frappe.msgprint("Task has successfully completed")

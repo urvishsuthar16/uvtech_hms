@@ -40,8 +40,9 @@
 <table>
     <thead>
         <tr>
-            <th>Subject</th>
-            <th>Task Status</th>
+            <th>Tasks</th>
+            <th>Shift</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -49,6 +50,7 @@
         {% for record in data %}
             <tr>
                 <td>{{ record.subject }}</td>
+                <td>{{ record.custom_shift }}</td>
                 <td>
                     <button button id={{ record.name }} class="btn btn-primary">Complete</button>
                 </td>
