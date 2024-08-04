@@ -246,6 +246,13 @@ fixtures = [
 			]
 		]
 	]},
+    {"dt": "Property Setter", "filters": [
+        [
+			"module", "in", [
+                "hms"
+			]
+		]
+	]},
 
 
 ]

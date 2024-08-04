@@ -7,12 +7,13 @@ def assign_and_get_task(user,shift_type,employee_id):
 
     todays_date=frappe.utils.getdate()
 
-    project_task_list = frappe.db.sql("""SELECT t.name,t.subject FROM `tabProject` p 
+    project_task_list = frappe.db.sql("""SELECT t.name,t.subject,t.project FROM `tabProject` p 
                     LEFT JOIN `tabProject User` u ON p.name = u.parent
                     LEFT JOIN `tabTask` t ON p.name = t.project
                     WHERE u.email = %(email)s
                     AND t.type = 'Daily'
-                    AND  t.is_template = 1 """,({"email":user}),as_dict=1) 
+                    AND t.custom_shift = %(shift)s
+                    AND  t.is_template = 1 """,({"email":user,"shift":shift_type}),as_dict=1) 
     
     task_list = frappe.db.sql("""
         SELECT * FROM `tabTask`
@@ -46,10 +47,19 @@ def assign_and_get_task(user,shift_type,employee_id):
                     "exp_start_date": todays_date,
                     "exp_end_date": todays_date,
                     "custom_shift":shift_type,
-                    "type":"Daily"
+                    "type":"Daily",
+                    "project":task['project']
                 })
+                new_task.insert(ignore_permissions=True)
+
+                # share = frappe.new_doc('DocShare')
+                # share.user = user
+                # share.share_doctype = "Task"
+                # share.share_name = task['name']
+                # share.read = 1
+                # share.write=1
+                # share.insert(ignore_permissions=True)
                 
-                new_task.insert()
                 task_list.append(new_task)
 
                 todo = frappe.get_doc({
@@ -62,6 +72,17 @@ def assign_and_get_task(user,shift_type,employee_id):
                     # 'owner': user['name']
                 })
                 todo.insert(ignore_permissions=True)
+                todo = frappe.get_doc({
+                    'doctype': 'ToDo',
+                    'description': f'Please check the new task: {new_task.subject}',
+                    'reference_type': 'Task',
+                    'reference_name': new_task.name,
+                    "allocated_to" : user,
+                    "date":todays_date
+                    # 'owner': user['name']
+                })
+                todo.insert(ignore_permissions=True)
+
         # frappe.db.set_value('Employee',employee_id,"default_shift","")
     return task_list   
 
