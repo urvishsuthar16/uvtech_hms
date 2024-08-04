@@ -28,7 +28,7 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Task" : "public/js/task.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -133,10 +133,13 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"uvtech_hms.tasks.all"
 # 	],
+	"0 */4 * * *": [
+		"uvtech_hms.overiders.utilis.remove_default_shift"
+	],
 # 	"daily": [
 # 		"uvtech_hms.tasks.daily"
 # 	],
@@ -149,7 +152,7 @@ app_license = "mit"
 # 	"monthly": [
 # 		"uvtech_hms.tasks.monthly"
 # 	],
-# }
+}
 
 # Testing
 # -------

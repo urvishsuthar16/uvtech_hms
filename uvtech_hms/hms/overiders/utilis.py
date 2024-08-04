@@ -66,5 +66,7 @@ import frappe
 # def get_evening_shift_assignment():
 #     process_shift_assignment('Evening', "Run at 11 PM")
 
-# def remove_default_shift():
-#     all_employees = frappe.db.get_all('Employee',)
+def remove_default_shift():
+    all_employees = frappe.db.get_all('Employee')
+    for emp in all_employees:
+        frappe.db.set_value('Employee',emp,'default_shift','')

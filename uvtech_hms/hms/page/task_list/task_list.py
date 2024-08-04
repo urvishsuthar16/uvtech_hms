@@ -1,5 +1,6 @@
 import frappe
 import json
+from datetime import date
 
 @frappe.whitelist()
 def assign_and_get_task(user,shift_type,employee_id):
@@ -7,27 +8,26 @@ def assign_and_get_task(user,shift_type,employee_id):
 
     todays_date=frappe.utils.getdate()
 
-    project_task_list = frappe.db.sql("""SELECT t.name,t.subject,t.project FROM `tabProject` p 
+    project_task_list = frappe.db.sql("""SELECT t.name,t.subject,t.project,t.type FROM `tabProject` p 
                     LEFT JOIN `tabProject User` u ON p.name = u.parent
                     LEFT JOIN `tabTask` t ON p.name = t.project
                     WHERE u.email = %(email)s
-                    AND t.type = 'Daily'
                     AND t.custom_shift = %(shift)s
                     AND  t.is_template = 1 """,({"email":user,"shift":shift_type}),as_dict=1) 
     
     task_list = frappe.db.sql("""
         SELECT * FROM `tabTask`
-        WHERE exp_start_date = %(date)s
-        AND  owner = %(owner)s
+        WHERE owner = %(owner)s 
         AND custom_shift = %(shift)s
+        AND exp_start_date = %(date)s
         AND type = 'Daily'
         AND status = 'Open' """,({"shift":shift_type,"owner":user,"date":todays_date}),as_dict=1)
     
     task_list_completed = frappe.db.sql("""
         SELECT * FROM `tabTask`
-        WHERE exp_start_date = %(date)s
-        AND  owner = %(owner)s
+        WHERE owner = %(owner)s 
         AND custom_shift = %(shift)s
+        AND exp_start_date = %(date)s
         AND type = 'Daily'
         AND status = 'Completed' """,({"shift":shift_type,"owner":user,"date":todays_date}),as_dict=1)
     
@@ -39,53 +39,89 @@ def assign_and_get_task(user,shift_type,employee_id):
             frappe.db.set_value('Employee',employee_id,"default_shift","")
         else:
             frappe.db.set_value('Employee',employee_id,"default_shift",shift_type)
+
             for task in project_task_list:
-                new_task = frappe.get_doc({
-                    'doctype': 'Task',
-                    'subject': task['subject'],
-                    'status': 'Open',
-                    "exp_start_date": todays_date,
-                    "exp_end_date": todays_date,
-                    "custom_shift":shift_type,
-                    "type":"Daily",
-                    "project":task['project']
-                })
-                new_task.insert(ignore_permissions=True)
+                # condit = task.type == 'Daily' and not "Monday" == todays_date.strftime("%A")
+                if task.type == 'Daily' and not "Monday" == todays_date.strftime("%A"):
+                    new_task = frappe.get_doc({
+                        'doctype': 'Task',
+                        'subject': task['subject'],
+                        'status': 'Open',
+                        "exp_start_date": todays_date,
+                        "exp_end_date": todays_date,
+                        "custom_shift":shift_type,
+                        "type":task['type'],
+                        "project":task['project']
+                    })
+                    new_task.insert(ignore_permissions=True)
 
-                # share = frappe.new_doc('DocShare')
-                # share.user = user
-                # share.share_doctype = "Task"
-                # share.share_name = task['name']
-                # share.read = 1
-                # share.write=1
-                # share.insert(ignore_permissions=True)
+                    task_list.append(new_task)
+
+                    todo = frappe.get_doc({
+                        'doctype': 'ToDo',
+                        'description': f'Please check the new task: {new_task.subject}',
+                        'reference_type': 'Task',
+                        'reference_name': new_task.name,
+                        "allocated_to" : user,
+                        "date":todays_date
+                        # 'owner': user['name']
+                    })
+                    todo.insert(ignore_permissions=True)
                 
-                task_list.append(new_task)
+                elif "Monday" == todays_date.strftime("%A"):
+                    new_task = frappe.get_doc({
+                        'doctype': 'Task',
+                        'subject': task['subject'],
+                        'status': 'Open',
+                        "exp_start_date": todays_date,
+                        "exp_end_date": todays_date,
+                        "custom_shift":shift_type,
+                        "type":task['type'],
+                        "project":task['project']
+                    })
+                    new_task.insert(ignore_permissions=True)
+                    
+                    task_list.append(new_task)
 
-                todo = frappe.get_doc({
-                    'doctype': 'ToDo',
-                    'description': f'Please check the new task: {new_task.subject}',
-                    'reference_type': 'Task',
-                    'reference_name': new_task.name,
-                    "allocated_to" : user,
-                    "date":todays_date
-                    # 'owner': user['name']
-                })
-                todo.insert(ignore_permissions=True)
-                todo = frappe.get_doc({
-                    'doctype': 'ToDo',
-                    'description': f'Please check the new task: {new_task.subject}',
-                    'reference_type': 'Task',
-                    'reference_name': new_task.name,
-                    "allocated_to" : user,
-                    "date":todays_date
-                    # 'owner': user['name']
-                })
-                todo.insert(ignore_permissions=True)
+                    todo = frappe.get_doc({
+                        'doctype': 'ToDo',
+                        'description': f'Please check the new task: {new_task.subject}',
+                        'reference_type': 'Task',
+                        'reference_name': new_task.name,
+                        "allocated_to" : user,
+                        "date":todays_date
+                        # 'owner': user['name']
+                    })
+                    todo.insert(ignore_permissions=True)                  
 
-        # frappe.db.set_value('Employee',employee_id,"default_shift","")
-    return task_list   
+    return task_list  
+ 
+def create_task_list(task,user,todays_date,shift_type):
 
+    new_task = frappe.get_doc({
+        'doctype': 'Task',
+        'subject': task['subject'],
+        'status': 'Open',
+        "exp_start_date": todays_date,
+        "exp_end_date": todays_date,
+        "custom_shift":shift_type,
+        "type":"Daily",
+        "project":task['project']
+    })
+    new_task.insert(ignore_permissions=True)
+
+    todo = frappe.get_doc({
+        'doctype': 'ToDo',
+        'description': f'Please check the new task: {new_task.subject}',
+        'reference_type': 'Task',
+        'reference_name': new_task.name,
+        "allocated_to" : user,
+        "date":todays_date
+        # 'owner': user['name']
+    })
+    todo.insert(ignore_permissions=True)
+    return new_task
+    
 @frappe.whitelist()
 def upload_files_and_change_task_status(files,taskId,user=None):
     files=json.loads(files)
