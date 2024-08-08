@@ -83,67 +83,156 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			frappe.msgprint(__('Error retrieving user information.'));
 		});
 
-	$(page.body).on('click', '.btn-primary', function (e) {
-		var taskId = e.target.id;  // Assuming taskId is passed in the button's ID
+	// $(page.body).on('click', '.btn-primary', function (e) {
+	// 	var taskId = e.target.id;
+	// 	var dialog = new frappe.ui.Dialog({
+	// 		title: 'Upload File and Complete Task',
+	// 		fields: [
+	// 			{
+	// 				fieldname: 'image_box',
+	// 				fieldtype: 'HTML',
+	// 				options: `
+	// 										<input type="file" id="file-input" multiple />
+	// 										<div id="preview-container" style="margin-top: 10px;">
+	// 												<!-- Image previews will be inserted here -->
+	// 										</div>
+	// 								`
+	// 			}
+	// 		],
+	// 		primary_action_label: 'Complete',
+	// 		primary_action: function () {
+	// 			// Collect the file inputs
+	// 			var fileInputs = document.getElementById('file-input').files;
+	// 			var fileslist = [];
+	// 			if (fileInputs.length > 0) {
+	// 				Array.from(fileInputs).forEach(file => {
+	// 					fileslist.push(file.name);
+	// 				});
+	// 				convertFilesToBlobsAndUpload(fileInputs, taskId, frappe.session.user);
+	// 			} else {
+	// 				console.log('No images uploaded.');
+	// 				uploadFilesAndCompleteTask([], taskId, frappe.session.user);
+	// 			}
 
+	// 			dialog.hide();
+	// 		}
+	// 	});
+
+	// 	// Show the dialog
+	// 	dialog.show();
+	$(page.body).on('click', '.btn-primary', function (e) {
+		var taskId = e.target.id;
+		var fileslist = []; // This will store the paths of all uploaded files
+	
 		var dialog = new frappe.ui.Dialog({
 			title: 'Upload File and Complete Task',
 			fields: [
 				{
-					fieldtype: 'Table',
-					fieldname: 'files',
-					label: 'Child Table',
-					reqd: 1,
-					in_list_view: 1,
-					data: [{ "image": "" }], // You can set default data here if needed
-					fields: [
-						{
-							fieldname: 'image',
-							fieldtype: 'Attach',
-							label: 'Image',
-							in_list_view: 1
-						}
-					]
+					fieldname: 'image_box',
+					fieldtype: 'HTML',
+					options: `
+						<input type="file" id="file-input" multiple />
+						<div id="preview-container" style="margin-top: 10px;">
+							<!-- Image previews will be inserted here -->
+						</div>
+					`
 				}
 			],
 			primary_action_label: 'Complete',
 			primary_action: function () {
-				var values = dialog.get_values();
-
-				if (values.files && values.files.length) {
-					let fileslist = values.files.map(row => row.image);
-					uploadFilesAndCompleteTask(fileslist, taskId, frappe.session.user);
-					window.location.reload();
-
+				// Collect the file inputs
+				var fileInputs = document.getElementById('file-input').files;
+	
+				if (fileInputs.length > 0) {
+					// Upload each file and collect its path
+					Array.from(fileInputs).forEach(file => {
+						uploadSingleFile(file, taskId, frappe.session.user, fileslist, function(updatedFilesList) {
+							// Callback after each file is uploaded, with the updated fileslist
+							console.log('Current fileslist:', updatedFilesList);
+	
+							// Check if all files have been uploaded
+							if (updatedFilesList.length === fileInputs.length) {
+								uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
+								window.location.reload();
+							}
+						});
+					});
 				} else {
 					console.log('No images uploaded.');
 					uploadFilesAndCompleteTask([], taskId, frappe.session.user);
 					window.location.reload();
 				}
-
+	
 				dialog.hide();
 			}
 		});
-
+	
+		// Show the dialog
 		dialog.show();
-	// 	$('button.text-muted.btn.btn-default.icon-btn').click(
-	// 		()=>{$('[data-fieldname="barcode"]').click()}
-	//    )
-		// $('div.form-group frappe-control input-max-width').click(
-		// 	()=>{$('[data-fieldtype="Attach"]').click()}
-		// )
-		// // Simulate clicks after dialog shows
-		// setTimeout(function () {
-		// 	var element = $('[data-fieldtype="Attach"]');
-		// 	element.click(); // First click
-		// 	setTimeout(function () {
-		// 		element.click(); // Second click after 100 ms
-		// 		console.log("click in" )
-		// 	}, 10);
-		// 	console.log("click out" )
-		// }, 1);
-	});
+	
+		// Function to upload a single file
+		function uploadSingleFile(file, taskId, user, fileslist, callback) {
+			let formData = new FormData();
+			formData.append('file', file, file.name);
+			
+			// Example additional form data
+			formData.append('task_id', taskId);
+			formData.append('user', user);
+	
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/api/method/upload_file', true);
+			xhr.setRequestHeader('Accept', 'application/json');
+			xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
+	
+			xhr.onload = function() {
+				if (xhr.status === 200) {
+					const response = JSON.parse(xhr.responseText);
+					if (response.message && response.message.file_url) {
+						const filePath = response.message.file_url;
+						console.log('File uploaded successfully:', filePath);
+						
+						// Append the file path to fileslist
+						fileslist.push(filePath);
+	
+						// Execute the callback function with the updated fileslist
+						callback(fileslist);
+					} else {
+						console.error('File upload successful, but no file path returned.');
+					}
+				} else {
+					console.error('Error uploading file:', xhr.statusText);
+				}
+			};
+	
+			xhr.onerror = function() {
+				console.error('Request failed');
+			};
+	
+			xhr.send(formData);
+		}
+	
+		// Add the change event listener after the dialog is shown
+		$(document).off('change', '#file-input').on('change', '#file-input', function (e) {
+			var files = e.target.files;
+			var previewContainer = $('#preview-container');
+			previewContainer.html('');
 
+			Array.from(files).forEach(file => {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					var img = $('<img>').attr('src', e.target.result)
+						.css({
+							width: '100px',
+							height: '100px',
+							margin: '5px',
+							border: '1px solid #ccc'
+						});
+					previewContainer.append(img);
+				}
+				reader.readAsDataURL(file);
+			});
+		});
+	});
 };
 
 function assignTasks(userId, employee_id, shift_type, page) {
@@ -192,7 +281,6 @@ function assignTasks(userId, employee_id, shift_type, page) {
 	});
 }
 
-
 function uploadFilesAndCompleteTask(files, taskId, user) {
 	frappe.call({
 		method: 'uvtech_hms.hms.page.task_list.task_list.upload_files_and_change_task_status',
@@ -210,3 +298,70 @@ function uploadFilesAndCompleteTask(files, taskId, user) {
 		}
 	});
 }
+
+// function convertFilesToBlobsAndUpload(files, taskId, user) {
+// 	let blobs = [];
+// 	let filesProcessed = 0;
+
+// 	Array.from(files).forEach(file => {
+// 		let reader = new FileReader();
+// 		reader.onloadend = function () {
+// 			let blob = new Blob([reader.result], { type: file.type });
+// 			blobs.push({ blob: blob, name: file.name });
+
+// 			filesProcessed++;
+// 			if (filesProcessed === files.length) {
+// 				uploadFilesAndCompleteTask(blobs, taskId, user);
+// 			}
+// 		};
+// 		reader.readAsArrayBuffer(file);
+// 	});
+// }
+
+// function uploadFilesAndCompleteTask(files, taskId, user) {
+// 	let xhr = new XMLHttpRequest();
+
+// 	xhr.open('POST', 'http://89.116.122.152:19000/api/method/upload_file', true);
+// 	xhr.setRequestHeader('Accept', 'application/json');
+// 	xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
+
+// 	let form_data = new FormData();
+// 	files.forEach(file => {
+// 		form_data.append('file', file.blob, file.name);
+// 	});
+
+// 	form_data.append('is_private', 0);
+// 	form_data.append('folder', 'Home');
+
+// 	xhr.onreadystatechange = function () {
+// 		if (xhr.readyState === XMLHttpRequest.DONE) {
+// 			if (xhr.status === 200) {
+// 				const data = JSON.parse(xhr.responseText);
+// 				console.log("File Upload Success:", data);
+
+// 				// After successful file upload, proceed with task completion
+// 				frappe.call({
+// 					method: 'uvtech_hms.hms.page.task_list.task_list.upload_files_and_change_task_status',
+// 					args: {
+// 						files: data,  // Pass the response data if needed
+// 						taskId: taskId,
+// 						user: user
+// 					},
+// 					callback: function (response) {
+// 						frappe.msgprint("Task has successfully completed");
+// 						// Optionally reload the page
+// 						// window.location.reload();
+// 					},
+// 					error: function (err) {
+// 						frappe.msgprint(__('Error completing task.'));
+// 					}
+// 				});
+
+// 			} else {
+// 				console.error("File Upload Error:", xhr.statusText);
+// 			}
+// 		}
+// 	};
+
+// 	xhr.send(form_data);
+// }
