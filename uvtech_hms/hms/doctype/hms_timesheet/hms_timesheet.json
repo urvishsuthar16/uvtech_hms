@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:HT-{YYYY}-{#####}",
+ "creation": "2024-08-09 17:00:02.244542",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "column_break_cnvz",
+  "start_date",
+  "column_break_rlrq",
+  "end_date",
+  "column_break_nelx",
+  "refresh",
+  "section_break_wmtm",
+  "timesheet_table",
+  "section_break_uxdf",
+  "column_break_ddek",
+  "total_hours",
+  "column_break_pjwj",
+  "total_time"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_uxdf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "timesheet_table",
+   "fieldtype": "Table",
+   "label": "Time Sheets",
+   "options": "timesheet table"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "column_break_cnvz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rlrq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wmtm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ddek",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Data",
+   "label": "Total Hours ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pjwj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_time",
+   "fieldtype": "Data",
+   "label": "Total Amount ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_nelx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "refresh",
+   "fieldtype": "Button",
+   "label": "Refresh"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-08-19 01:11:31.401234",
+ "modified_by": "Administrator",
+ "module": "hms",
+ "name": "Hms Timesheet",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,6 +1,8 @@
 import frappe
 import json
 from datetime import date
+from datetime import datetime
+
 
 @frappe.whitelist()
 def assign_and_get_task(user,shift_type,employee_id):
@@ -139,3 +141,30 @@ def upload_files_and_change_task_status(files,taskId,user=None):
 
 
 
+@frappe.whitelist()
+def set_total_time(totalHours, totalMinutes):
+    try:
+        # Convert inputs to integers
+        total_hours = int(totalHours)
+        total_minutes = int(totalMinutes)
+
+        # Calculate total time in minutes
+        total_time_minutes = (total_hours * 60) + total_minutes
+
+        # Optionally, you might want to perform more actions, like updating a database record
+        # For example, updating a specific document field:
+        # doc = frappe.get_doc('Your Doctype', 'your_doc_name')
+        # doc.total_time_minutes = total_time_minutes
+        # doc.save()
+        
+        # Return the calculated total time in minutes
+        return {'total_time_minutes': total_time_minutes}
+
+    except Exception as e:
+        frappe.log_error(message=str(e), title="Error in set_total_time")
+        frappe.throw(_('Error updating total time: {0}').format(str(e)))
+   
+    
+
+    
+   

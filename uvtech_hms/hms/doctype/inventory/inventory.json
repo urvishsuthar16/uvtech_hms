@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:INV-{MM}-{YY}-{###}",
+ "creation": "2024-08-17 15:03:11.917965",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_kd88",
+  "supplier",
+  "inventory_items",
+  "email_template",
+  "email_template_text",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_kd88",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: frappe.user_roles.includes(\"Stock Manager\")",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier ",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "inventory_items",
+   "fieldtype": "Table",
+   "label": "Inventory items",
+   "options": "Stock Inventory items"
+  },
+  {
+   "depends_on": "eval: frappe.user_roles.includes(\"Stock Manager\")",
+   "fieldname": "email_template",
+   "fieldtype": "Link",
+   "label": "Email Template",
+   "options": "Email Template"
+  },
+  {
+   "depends_on": "eval: frappe.user_roles.includes(\"Stock Manager\")",
+   "fetch_from": "email_template.response",
+   "fetch_if_empty": 1,
+   "fieldname": "email_template_text",
+   "fieldtype": "Text Editor",
+   "label": "Email Template Text"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Inventory",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-08-18 18:29:15.411132",
+ "modified_by": "Administrator",
+ "module": "hms",
+ "name": "Inventory",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

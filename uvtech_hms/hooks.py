@@ -122,36 +122,45 @@ doctype_js = {"Task" : "public/js/task.js"}
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
+doc_events = {
 # 	"*": {
 # 		"on_update": "method",
 # 		"on_cancel": "method",
 # 		"on_trash": "method"
 # 	}
-# }
+
+"Hms Timesheet" :{
+    "validate" : "uvtech_hms.hms.doctype.hms_timesheet.hms_timesheet.update_timesheet"
+
+}
+}
 
 # Scheduled Tasks
 # ---------------
 
 scheduler_events = {
-# 	"all": [
-# 		"uvtech_hms.tasks.all"
-# 	],
-	"0 */4 * * *": [
-		"uvtech_hms.overiders.utilis.remove_default_shift"
-	],
-# 	"daily": [
-# 		"uvtech_hms.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"uvtech_hms.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"uvtech_hms.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"uvtech_hms.tasks.monthly"
-# 	],
+    
+# # 	"all": [
+# # 		"uvtech_hms.tasks.all"
+# # 	],
+		"cron":{
+			
+			"0 */4 * * *": [
+				"uvtech_hms.overiders.utilis.remove_default_shift"
+			],
+		},
+# # 	"daily": [
+# # 		"uvtech_hms.tasks.daily"
+# # 	],
+# # 	"hourly": [
+# # 		"uvtech_hms.tasks.hourly"
+# # 	],
+# # 	"weekly": [
+# # 		"uvtech_hms.tasks.weekly"
+# # 	],
+# # 	"monthly": [
+# # 		"uvtech_hms.tasks.monthly"
+# # 	],
 }
 
 # Testing
