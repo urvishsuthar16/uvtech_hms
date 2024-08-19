@@ -242,13 +242,26 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-19 20:55:25.545705",
+ "modified": "2024-08-19 21:37:01.323067",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
- "permissions": [],
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 1,
+   "write": 1
+  }
+ ],
  "search_fields": "employee,employee_name,attendance_date,status",
  "sort_field": "modified",
  "sort_order": "DESC",
