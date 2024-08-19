@@ -122,18 +122,18 @@ doctype_js = {"Task" : "public/js/task.js"}
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
+# doc_events = {
+# # 	"*": {
+# # 		"on_update": "method",
+# # 		"on_cancel": "method",
+# # 		"on_trash": "method"
+# # 	}
+
+# "Hms Timesheet" :{
+#     "validate" : "uvtech_hms.hms.doctype.hms_timesheet.hms_timesheet.update_timesheet"
+
 # 	}
-
-"Hms Timesheet" :{
-    "validate" : "uvtech_hms.hms.doctype.hms_timesheet.hms_timesheet.update_timesheet"
-
-}
-}
+# }
 
 # Scheduled Tasks
 # ---------------

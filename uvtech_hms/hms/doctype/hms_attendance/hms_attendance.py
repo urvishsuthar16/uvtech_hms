@@ -1,12 +1,18 @@
 # Copyright (c) 2024, gg and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
-from frappe.utils import today
-
 
 class HmsAttendance(Document):
-    pass
-	# def validate(self):
-	# 	self.working_hours = 
+
+	def validate(self):
+		total_working_hours = frappe.utils.time_diff_in_hours(self.out_time,self.in_time)
+		standard_working_hours = frappe.db.get_value('Employee',self.employee,'custom_standard_hours')
+
+		if total_working_hours > standard_working_hours:
+			self.standard_hours = standard_working_hours
+			self.extra_hours = total_working_hours - standard_working_hours
+		elif total_working_hours < standard_working_hours:
+			self.standard_hours = total_working_hours
+			self.extra_hours = 0

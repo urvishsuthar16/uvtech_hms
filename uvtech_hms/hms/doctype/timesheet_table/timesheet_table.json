@@ -9,14 +9,17 @@
   "from_time",
   "to_time",
   "hours",
-  "normal_hours",
+  "standard_hours",
   "extra_hours",
-  "employees",
+  "employee",
+  "status",
   "column_break_dsiq",
   "standard_rate",
   "extra_rate",
   "amount",
-  "attendance_date"
+  "attendance_date",
+  "standard_amount",
+  "extra_amount"
  ],
  "fields": [
   {
@@ -41,22 +44,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "normal_hours",
-   "fieldtype": "Float",
-   "label": "Normal Hours",
-   "read_only": 1
-  },
-  {
    "fieldname": "extra_hours",
    "fieldtype": "Float",
    "label": "Extra hours",
-   "read_only": 1
-  },
-  {
-   "fieldname": "employees",
-   "fieldtype": "Link",
-   "label": "Employees ",
-   "options": "Employee",
    "read_only": 1
   },
   {
@@ -90,12 +80,45 @@
    "fieldtype": "Date",
    "label": "Attendance Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "standard_hours",
+   "fieldtype": "Float",
+   "label": "Standard Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "standard_amount",
+   "fieldtype": "Float",
+   "label": "Standard Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "extra_amount",
+   "fieldtype": "Float",
+   "label": "Extra Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-19 01:14:16.421216",
+ "modified": "2024-08-19 21:26:36.657323",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "timesheet table",

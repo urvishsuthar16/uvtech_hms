@@ -212,9 +212,10 @@
   {
    "fetch_from": "employee.custom_standard_rate",
    "fieldname": "standard__rate",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "hidden": 1,
    "label": "Standard  Rate",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -241,7 +242,7 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-19 01:06:01.067403",
+ "modified": "2024-08-19 20:55:25.545705",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",

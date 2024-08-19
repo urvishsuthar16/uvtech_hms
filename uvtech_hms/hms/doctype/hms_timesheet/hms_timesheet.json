@@ -12,7 +12,7 @@
   "column_break_rlrq",
   "end_date",
   "column_break_nelx",
-  "refresh",
+  "refresh_btn",
   "section_break_wmtm",
   "timesheet_table",
   "section_break_uxdf",
@@ -66,8 +66,9 @@
   },
   {
    "fieldname": "total_hours",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Total Hours ",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -76,8 +77,9 @@
   },
   {
    "fieldname": "total_time",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Total Amount ",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -85,14 +87,14 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "refresh",
+   "fieldname": "refresh_btn",
    "fieldtype": "Button",
    "label": "Refresh"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 01:11:31.401234",
+ "modified": "2024-08-19 20:58:46.697519",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Timesheet",

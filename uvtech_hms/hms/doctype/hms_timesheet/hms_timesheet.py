@@ -3,92 +3,40 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class HmsTimesheet(Document):
-    pass
-
-@frappe.whitelist()
-def update_timesheet(doc, method=None):
-    # Prevent recursion by checking if the function has already been run
-    if doc.get('timesheet_updated'):
-        return
-
-    employee = doc.employee
-    start_date = doc.start_date
-    end_date = doc.end_date
-    
-    # # Check if there's already an existing timesheet for the same employee and date range
-    # existing_timesheet = frappe.db.exists('Hms Timesheet', {
-    #     'employee': employee,
-    #     'start_date': ['<=', end_date],
-    #     'end_date': ['>=', start_date]
-    # })
-    
-    # if existing_timesheet:
-    #     frappe.throw(f"A timesheet already exists for employee {employee} within the date range {start_date} to {end_date}.")
-
-    # Get list of Hms Attendance records within the date range
-    hms_attendance = frappe.get_list(
-        'Hms Attendance',
+    def validate(self):
+        hms_attendance = frappe.get_list('Hms Attendance',
         filters={
-            'employee': employee,
-            'attendance_date': ['between', [start_date, end_date]]
+            'employee': self.employee,
+            'attendance_date': ['between', [self.start_date, self.end_date]]
         },
-        fields=['name', 'in_time', 'out_time', 'attendance_date', 'employee', 'standard__rate']
-    )
-    
-    total_hours = 0  # Initialize total hours
-    total_amount = 0  # Initialize total amount
-    
-    # Loop through the attendance records
-    for i in hms_attendance:
-        # Convert attendance_date to string for comparison
-        attendance_date_str = str(i.attendance_date)
-        duplicate_entry = False
-        
-        # Check for duplicates directly in the timesheet table
-        for row in doc.timesheet_table:
-            if row.attendance_date == attendance_date_str and row.employees == i.employee:
-                duplicate_entry = True
-                break
+        fields=['name', 'in_time', 'out_time', 'attendance_date','status','employee',
+        'standard__rate','standard_hours','extra_hours','extra_rate','working_hours']
+        )
 
-        if duplicate_entry:
-            continue  # Skip if a duplicate entry is found
-        
-        # Calculate hours between in_time and out_time
-        if i.in_time and i.out_time:
-            from_time = i.in_time
-            to_time = i.out_time
-            
-            hours = (to_time - from_time).total_seconds() / 3600  # Convert to hours
-            total_hours = round(total_hours + hours, 2)
-            
-            # Convert standard__rate to float before multiplication
-            standard_rate = float(i.standard__rate) if i.standard__rate else 0
-            total_rate = round(standard_rate * hours, 2)
-            
-            total_amount = round(total_amount + total_rate, 2)
-            
-            # Append to timesheet table
-            doc.append("timesheet_table", {
-                "from_time": from_time,
-                "to_time": to_time,
-                "attendance_date": i.attendance_date,
-                "employees": i.employee,
-                'standard_rate': standard_rate,
-                "hours": hours,
-                'amount': total_rate
-            })
-    
-    # Update the total hours and total amount fields
-    doc.total_hours = total_hours
-    doc.total_time = total_amount
-    
-    # Mark that the timesheet has been updated to avoid recursion
-    doc.timesheet_updated = True
-    
-    # Save without triggering events to avoid recursion
-    # doc.flags.ignore_events = True
-    # doc.save()
-    # doc.reload()  # Reload the document after saving
-    # doc.flags.ignore_events = False
+        existing_attendance = [ row.attendance_date for row in self.timesheet_table]
 
-
+        # Loop through the attendance records
+        for i in hms_attendance:
+            if str(i.attendance_date) not in existing_attendance:
+                standard_amount = i.standard__rate*i.standard_hours
+                extra_amount = i.extra_rate*i.extra_hours
+                amount = standard_amount + extra_amount
+                
+                self.append("timesheet_table", {
+                    "from_time": i.in_time,
+                    "to_time": i.out_time,
+                    "attendance_date": i.attendance_date,
+                    "employee": i.employee,
+                    'standard_rate': i.standard__rate,
+                    "standard_hours":i.standard_hours,
+                    "standard_amount":standard_amount,
+                    "extra_hours":i.extra_hours,
+                    "extra_rate":i.extra_rate,
+                    "extra_amount":extra_amount,
+                    "hours": i.working_hours,
+                    'amount': amount,
+                    'status':i.status
+                })
+                
+        self.total_hours = sum([row.hours for row in self.timesheet_table])
+        self.total_time = sum([row.amount for row in self.timesheet_table])
