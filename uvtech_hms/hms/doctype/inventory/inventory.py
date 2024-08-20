@@ -1,17 +1,13 @@
 # Copyright (c) 2024, gg and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
+from frappe.core.doctype.communication.email import make
 
 
 class Inventory(Document):
-	pass
-
-
-
-import frappe
-from frappe.core.doctype.communication.email import make
+    pass
 
 @frappe.whitelist()
 def send_mail(docname, email_template_text):

@@ -41,174 +41,174 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 	// Add a button to the page
 	// Add Start Time button
-     // Add Start Time button
-	 let button_start = page.add_field({
-        label: 'Start Time',
-        fieldtype: 'Button',
-        fieldname: 'start_time'
-    });
+    //  Add Start Time button
+	//  let button_start = page.add_field({
+    //     label: 'Start Time',
+    //     fieldtype: 'Button',
+    //     fieldname: 'start_time'
+    // });
 
-    button_start.$input.on('click', function() {
-        // Function to pad numbers to two digits
-        function pad(number) {
-            return number < 10 ? '0' + number : number;
-        }
+    // button_start.$input.on('click', function() {
+    //     // Function to pad numbers to two digits
+    //     function pad(number) {
+    //         return number < 10 ? '0' + number : number;
+    //     }
 
-        // Get current date and time
-        let now = new Date();
-        let day = pad(now.getDate());
-        let month = pad(now.getMonth() + 1); // Months are 0-indexed
-        let year = now.getFullYear();
-        let hours = pad(now.getHours());
-        let minutes = pad(now.getMinutes());
-        let seconds = pad(now.getSeconds());
+    //     // Get current date and time
+    //     let now = new Date();
+    //     let day = pad(now.getDate());
+    //     let month = pad(now.getMonth() + 1); // Months are 0-indexed
+    //     let year = now.getFullYear();
+    //     let hours = pad(now.getHours());
+    //     let minutes = pad(now.getMinutes());
+    //     let seconds = pad(now.getSeconds());
 
-        // Format current time as YYYY-MM-DD HH:MM:SS
-        let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        let shift_filter = shift_filter_field.get_value();
-        let emp_id = employee_field.get_value();
-        let attendance_date = `${year}-${month}-${day}`;
+    //     // Format current time as YYYY-MM-DD HH:MM:SS
+    //     let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    //     let shift_filter = shift_filter_field.get_value();
+    //     let emp_id = employee_field.get_value();
+    //     let attendance_date = `${year}-${month}-${day}`;
 
-        // Query the database to check for existing attendance record
-        frappe.call({
-            method: 'frappe.client.get_list',
-            args: {
-                doctype: 'Hms Attendance',
-                filters: {
-                    employee: emp_id,
-                    attendance_date: attendance_date,
-                    shift: shift_filter
-                },
-                fields: ['name', 'out_time'],
-                limit_page_length: 1
-            },
-            callback: function(response) {
-                if (response.message && response.message.length > 0) {
-                    // Document already exists
-                    let existingDoc = response.message[0];
-                    if (!existingDoc.out_time) {
-                        frappe.msgprint(__('Attendance record for today already started. End Time not set.'));
-                    } else {
-                        frappe.msgprint(__('Attendance record for today already exists.'));
-                    }
-                } else {
-                    // Create a new document if none exists
-                    frappe.call({
-                        method: 'frappe.client.insert',
-                        args: {
-                            doc: {
-                                doctype: 'Hms Attendance',
-                                employee: emp_id,
-                                in_time: formattedTime,
-                                attendance_date: attendance_date,
-                                shift: shift_filter
-                            }
-                        },
-                        callback: function(response) {
-                            if (!response.exc) {
-                                frappe.msgprint(`Start Time recorded: ${formattedTime}`); // Show success message
-                            } else {
-                                frappe.msgprint(__('Error creating the document.'));
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    });
+    //     // Query the database to check for existing attendance record
+    //     frappe.call({
+    //         method: 'frappe.client.get_list',
+    //         args: {
+    //             doctype: 'Hms Attendance',
+    //             filters: {
+    //                 employee: emp_id,
+    //                 attendance_date: attendance_date,
+    //                 shift: shift_filter
+    //             },
+    //             fields: ['name', 'out_time'],
+    //             limit_page_length: 1
+    //         },
+    //         callback: function(response) {
+    //             if (response.message && response.message.length > 0) {
+    //                 // Document already exists
+    //                 let existingDoc = response.message[0];
+    //                 if (!existingDoc.out_time) {
+    //                     frappe.msgprint(__('Attendance record for today already started. End Time not set.'));
+    //                 } else {
+    //                     frappe.msgprint(__('Attendance record for today already exists.'));
+    //                 }
+    //             } else {
+    //                 // Create a new document if none exists
+    //                 frappe.call({
+    //                     method: 'frappe.client.insert',
+    //                     args: {
+    //                         doc: {
+    //                             doctype: 'Hms Attendance',
+    //                             employee: emp_id,
+    //                             in_time: formattedTime,
+    //                             attendance_date: attendance_date,
+    //                             shift: shift_filter
+    //                         }
+    //                     },
+    //                     callback: function(response) {
+    //                         if (!response.exc) {
+    //                             frappe.msgprint(`Start Time recorded: ${formattedTime}`); // Show success message
+    //                         } else {
+    //                             frappe.msgprint(__('Error creating the document.'));
+    //                         }
+    //                     }
+    //                 });
+    //             }
+    //         }
+    //     });
+    // });
 
-    // Add End Time button
-    let button_end = page.add_field({
-        label: 'End Time',
-        fieldtype: 'Button',
-        fieldname: 'end_time'
-    });
+    // // Add End Time button
+    // let button_end = page.add_field({
+    //     label: 'End Time',
+    //     fieldtype: 'Button',
+    //     fieldname: 'end_time'
+    // });
 
-    button_end.$input.on('click', function() {
-        // Function to pad numbers to two digits
-        function pad(number) {
-            return number < 10 ? '0' + number : number;
-        }
+    // button_end.$input.on('click', function() {
+    //     // Function to pad numbers to two digits
+    //     function pad(number) {
+    //         return number < 10 ? '0' + number : number;
+    //     }
 
-        // Get current date and time
-        let now = new Date();
-        let day = pad(now.getDate());
-        let month = pad(now.getMonth() + 1); // Months are 0-indexed
-        let year = now.getFullYear();
-        let hours = pad(now.getHours());
-        let minutes = pad(now.getMinutes());
-        let seconds = pad(now.getSeconds());
+    //     // Get current date and time
+    //     let now = new Date();
+    //     let day = pad(now.getDate());
+    //     let month = pad(now.getMonth() + 1); // Months are 0-indexed
+    //     let year = now.getFullYear();
+    //     let hours = pad(now.getHours());
+    //     let minutes = pad(now.getMinutes());
+    //     let seconds = pad(now.getSeconds());
 
-        // Format current time as YYYY-MM-DD HH:MM:SS
-        let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        let attendance_date = `${year}-${month}-${day}`;
-        let emp_id = employee_field.get_value();
+    //     // Format current time as YYYY-MM-DD HH:MM:SS
+    //     let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    //     let attendance_date = `${year}-${month}-${day}`;
+    //     let emp_id = employee_field.get_value();
 
-        // Query the database to find the existing attendance record
-        frappe.call({
-            method: 'frappe.client.get_list',
-            args: {
-                doctype: 'Hms Attendance',
-                filters: {
-                    employee: emp_id,
-                    attendance_date: attendance_date
-                },
-                fields: ['name', 'in_time', 'out_time'],
-                limit_page_length: 1
-            },
-            callback: function(response) {
-                if (response.message && response.message.length > 0) {
-                    // Document exists, update the end time
-                    let existingDoc = response.message[0];
-                    if (!existingDoc.out_time) {
-                        // Calculate total time
-                        let startTime = new Date(existingDoc.in_time);
-                        let endTime = new Date(formattedTime);
-                        let totalMilliseconds = endTime - startTime;
-                        let totalHours = Math.floor(totalMilliseconds / (1000 * 60 * 60)); // Total time in hours
-                        let totalMinutes = Math.floor((totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
+    //     // Query the database to find the existing attendance record
+    //     frappe.call({
+    //         method: 'frappe.client.get_list',
+    //         args: {
+    //             doctype: 'Hms Attendance',
+    //             filters: {
+    //                 employee: emp_id,
+    //                 attendance_date: attendance_date
+    //             },
+    //             fields: ['name', 'in_time', 'out_time'],
+    //             limit_page_length: 1
+    //         },
+    //         callback: function(response) {
+    //             if (response.message && response.message.length > 0) {
+    //                 // Document exists, update the end time
+    //                 let existingDoc = response.message[0];
+    //                 if (!existingDoc.out_time) {
+    //                     // Calculate total time
+    //                     let startTime = new Date(existingDoc.in_time);
+    //                     let endTime = new Date(formattedTime);
+    //                     let totalMilliseconds = endTime - startTime;
+    //                     let totalHours = Math.floor(totalMilliseconds / (1000 * 60 * 60)); // Total time in hours
+    //                     let totalMinutes = Math.floor((totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
 
-                        frappe.call({
-                            method: 'frappe.client.set_value',
-                            args: {
-                                doctype: 'Hms Attendance',
-                                name: existingDoc.name,
-                                fieldname: 'out_time',
-                                value: formattedTime
-                            },
-                            callback: function(response) {
-                                if (!response.exc) {
-                                    // Update total time
-                                    frappe.call({
-                                        method: 'frappe.client.set_value',
-                                        args: {
-                                            doctype: 'Hms Attendance',
-                                            name : existingDoc.name,
-                                            value : `${totalHours} hours ${totalMinutes} minutes`
-                                        },
-                                        callback: function(response) {
-                                            if (!response.exc) {
-                                                frappe.msgprint(`End Time recorded: ${formattedTime}. Total Time: ${totalHours} hours ${totalMinutes} minutes`); // Show success message
-                                            } else {
-                                                frappe.msgprint(__('Error updating total time.'));
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    frappe.msgprint(__('Error updating the document.'));
-                                }
-                            }
-                        });
-                    } else {
-                        frappe.msgprint(__('End Time already set for today.'));
-                    }
-                } else {
-                    frappe.msgprint(__('No attendance record found for today.'));
-                }
-            }
-        });
-    });
-
+    //                     frappe.call({
+    //                         method: 'frappe.client.set_value',
+    //                         args: {
+    //                             doctype: 'Hms Attendance',
+    //                             name: existingDoc.name,
+    //                             fieldname: 'out_time',
+    //                             value: formattedTime
+    //                         },
+    //                         callback: function(response) {
+    //                             if (!response.exc) {
+    //                                 // Update total time
+    //                                 frappe.call({
+    //                                     method: 'frappe.client.set_value',
+    //                                     args: {
+    //                                         doctype: 'Hms Attendance',
+    //                                         name : existingDoc.name,
+    //                                         value : `${totalHours} hours ${totalMinutes} minutes`
+    //                                     },
+    //                                     callback: function(response) {
+    //                                         if (!response.exc) {
+    //                                             frappe.msgprint(`End Time recorded: ${formattedTime}. Total Time: ${totalHours} hours ${totalMinutes} minutes`); // Show success message
+    //                                         } else {
+    //                                             frappe.msgprint(__('Error updating total time.'));
+    //                                         }
+    //                                     }
+    //                                 });
+    //                             } else {
+    //                                 frappe.msgprint(__('Error updating the document.'));
+    //                             }
+    //                         }
+    //                     });
+    //                 } else {
+    //                     frappe.msgprint(__('End Time already set for today.'));
+    //                 }
+    //             } else {
+    //                 frappe.msgprint(__('No attendance record found for today.'));
+    //             }
+    //         }
+        // });
+    // });
+// 
 
 
 	
