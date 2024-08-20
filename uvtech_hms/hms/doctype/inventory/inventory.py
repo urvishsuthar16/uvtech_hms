@@ -31,13 +31,14 @@ def send_mail(docname, email_template_text):
     
     # Loop through the Stock Inventory Item table and append rows to the table
     for item in doc.inventory_items:  # Assuming 'inventory_items' is the child table fieldname
-        content += f"""
-            <tr>
-                <td>{item.item_code}</td>
-                
-                <td>{item.qty}</td>
-            </tr>
-        """
+        if item.qty>0:
+            content += f"""
+                <tr>
+                    <td>{item.item_code}</td>
+                    
+                    <td>{item.qty}</td>
+                </tr>
+            """
     
     # Close the table
     content += """
@@ -47,7 +48,7 @@ def send_mail(docname, email_template_text):
     
     # Send the email
     frappe.sendmail(
-        recipients=['govindgupta78090@gmail.com'],  # Replace with the appropriate recipient
+        recipients=doc.supplier_email,  # Replace with the appropriate recipient
         subject=f"Inventory Update for {doc.name}",
         message=content,
     )

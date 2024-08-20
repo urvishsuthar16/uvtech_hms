@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2024-08-20 19:17:05.342104",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2024-08-20 19:17:05.342104",
+ "modified_by": "Administrator",
+ "module": "hms",
+ "name": "hms-checkin",
+ "owner": "Administrator",
+ "page_name": "hms-checkin",
+ "roles": [
+  {
+   "role": "Employee"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Employee Checkin"
+}

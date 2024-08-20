@@ -146,7 +146,7 @@ scheduler_events = {
 		"cron":{
 			
 			"0 */4 * * *": [
-				"uvtech_hms.overiders.utilis.remove_default_shift"
+				"uvtech_hms.hms.overiders.utilis.remove_default_shift"
 			],
 		},
 # # 	"daily": [

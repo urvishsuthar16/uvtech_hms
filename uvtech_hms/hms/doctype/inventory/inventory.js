@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Inventory", {
-    onload(frm) {
+    onload_post_render(frm) {
 		frappe.db.get_list('Item', {
             filters: {
                 'disabled':0

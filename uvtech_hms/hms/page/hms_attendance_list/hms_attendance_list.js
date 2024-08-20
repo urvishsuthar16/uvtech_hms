@@ -62,7 +62,7 @@ frappe.pages['hms-attendance-list'].on_page_load = function(wrapper) {
 		let seconds = pad(now.getSeconds());
 
 		// Format current time as YYYY-MM-DD HH:MM:SS
-		let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+		let formattedTime = `${hours}:${minutes}:${seconds}`;
 		let shift_filter = shift_filter_field.get_value();
 		let emp_id = employee_field.get_value();
 		let attendance_date = `${year}-${month}-${day}`;
@@ -98,7 +98,7 @@ frappe.pages['hms-attendance-list'].on_page_load = function(wrapper) {
 								doctype: 'Hms Attendance',
 								employee: emp_id,
 								in_time: formattedTime,
-								attendance_date: attendance_date,
+								// attendance_date: attendance_date,
 								shift: shift_filter
 							}
 						},
@@ -136,7 +136,7 @@ frappe.pages['hms-attendance-list'].on_page_load = function(wrapper) {
 		let seconds = pad(now.getSeconds());
 	
 		// Format current time as YYYY-MM-DD HH:MM:SS
-		let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+		let formattedTime = `${hours}:${minutes}:${seconds}`;
 		let attendance_date = `${year}-${month}-${day}`;
 		let emp_id = employee_field.get_value();
 	
@@ -149,29 +149,29 @@ frappe.pages['hms-attendance-list'].on_page_load = function(wrapper) {
 					employee: emp_id,
 					attendance_date: attendance_date
 				},
-				fields: ['name', 'in_time', 'out_time'],
+				fields: ['name', 'in_time', 'out_time','working_hours'],
 				limit_page_length: 1
 			},
 			callback: function(response) {
 				if (response.message && response.message.length > 0) {
 					// Document exists, update the end time
 					let existingDoc = response.message[0];
-					if (!existingDoc.out_time) {
+					if (!existingDoc.working_hours	) {
 						// Calculate total time
 						let startTime = new Date(existingDoc.in_time);
 						let endTime = new Date(formattedTime);
-						let totalMilliseconds = endTime - startTime;
-						let totalHours = Math.floor(totalMilliseconds / (1000 * 60 * 60)); // Total time in hours
-						let totalMinutes = Math.floor((totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
-						let formattedWorkingHours = `${pad(totalHours)}:${pad(totalMinutes)}`;
+						// let totalMilliseconds = endTime - startTime;
+						// let totalHours = Math.floor(totalMilliseconds / (1000 * 60 * 60)); // Total time in hours
+						// let totalMinutes = Math.floor((totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
+						// let formattedWorkingHours = `${pad(totalHours)}:${pad(totalMinutes)}`;
 	
 						// Update the document with end time and working hours
 						frappe.db.set_value('Hms Attendance', existingDoc.name, {
 							out_time: formattedTime,
-							working_hours: formattedWorkingHours
+							// working_hours: formattedWorkingHours
 						}).then(response => {
 							if (!response.exc) {
-								frappe.msgprint(`End Time recorded: ${formattedTime}. Total Time: ${totalHours} hours ${totalMinutes} minutes`);
+								frappe.msgprint(`End Time recorded: ${formattedTime}. `);
 								button_container.find('.btn-end').hide();
 							} else {
 								frappe.msgprint(__('Error updating attendance record.'));

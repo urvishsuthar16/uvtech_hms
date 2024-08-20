@@ -70,3 +70,8 @@ def remove_default_shift():
     all_employees = frappe.db.get_all('Employee')
     for emp in all_employees:
         frappe.db.set_value('Employee',emp,'default_shift','')
+
+# def remove_default_shift():
+#     all_employees = frappe.db.get_all('Employee')
+#     for emp in all_employees:
+#         frappe.db.set_value('Employee',emp,'default_shift','')

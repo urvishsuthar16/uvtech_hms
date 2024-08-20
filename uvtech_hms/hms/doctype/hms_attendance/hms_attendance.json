@@ -28,6 +28,7 @@
   "naming_series",
   "leave_type",
   "leave_application",
+  "emp_user",
   "column_break0",
   "company",
   "department",
@@ -121,6 +122,7 @@
    "width": "50%"
   },
   {
+   "default": "Today",
    "fieldname": "attendance_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -168,14 +170,12 @@
    "options": "Shift Type"
   },
   {
-   "depends_on": "shift",
    "fieldname": "in_time",
    "fieldtype": "Time",
    "in_list_view": 1,
    "label": "In Time"
   },
   {
-   "depends_on": "shift",
    "fieldname": "out_time",
    "fieldtype": "Time",
    "in_list_view": 1,
@@ -238,11 +238,19 @@
    "label": "Extra Hours",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval: frappe.user_roles.includes(\"Administrator\")",
+   "fetch_from": "employee.user_id",
+   "fieldname": "emp_user",
+   "fieldtype": "Data",
+   "label": "Emp User",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-19 21:37:01.323067",
+ "modified": "2024-08-20 20:16:13.384528",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
