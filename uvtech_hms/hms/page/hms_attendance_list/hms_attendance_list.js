@@ -156,7 +156,7 @@ frappe.pages['hms-attendance-list'].on_page_load = function(wrapper) {
 				if (response.message && response.message.length > 0) {
 					// Document exists, update the end time
 					let existingDoc = response.message[0];
-					if (!existingDoc.working_hours	) {
+					if (!existingDoc.working_hours) {
 						// Calculate total time
 						let startTime = new Date(existingDoc.in_time);
 						let endTime = new Date(formattedTime);

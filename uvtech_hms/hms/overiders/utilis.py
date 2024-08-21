@@ -1,4 +1,7 @@
 import frappe
+from datetime import date
+from datetime import datetime
+from frappe.utils import today, now
 
 # def process_shift_assignment(shift_type, log_message):
 #     frappe.log_error("task not",log_message)
@@ -71,7 +74,47 @@ def remove_default_shift():
     for emp in all_employees:
         frappe.db.set_value('Employee',emp,'default_shift','')
 
-# def remove_default_shift():
-#     all_employees = frappe.db.get_all('Employee')
-#     for emp in all_employees:
-#         frappe.db.set_value('Employee',emp,'default_shift','')
+def test_time():
+    morning_shift = frappe.db.get_value('Shift Type','Morning','end_time')
+
+    morning_shift_end = datetime.combine(datetime.now(),datetime.min.time()) + morning_shift
+
+    evening_shift = frappe.frappe.db.get_value('Shift Type','Evening','end_time')
+    evening_shift_end = datetime.combine(datetime.now(),datetime.min.time()) + evening_shift
+    send_email_for_task('Evening')
+    if frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),morning_shift_end) >= 1 and frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),morning_shift_end) < 2:
+        send_email_for_task('Morning')
+
+    elif frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),evening_shift_end) >= 1 and frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),evening_shift_end) < 2:
+        send_email_for_task('Evening')
+
+def send_email_for_task(shift_type):
+    raw_email_list = frappe.db.sql(""" SELECT DISTINCT u.name 
+                        FROM `tabUser` u LEFT JOIN `tabHas Role` hr ON hr.parent = u.name 
+                        WHERE hr.role=%s """, ("SPL Manager",),as_dict=1)
+    
+    pending_task = frappe.db.sql("""SELECT name,subject, project ,exp_end_date,owner
+                    FROM  `tabTask` WHERE custom_shift = %(shift)s
+                    AND  exp_end_date = %(today)s
+                    AND status NOT IN ('Completed','Template') 
+                    """,({'shift':shift_type,'today':datetime.now()}),as_dict=1)
+
+    content = "<table class='table table-bordered'>"
+    content += "<thead><tr><th>Task ID</th><th>Date</th><th>Subject</th><th>Project</th></tr></thead><tbody>"
+    
+    # Iterate through the pending tasks and add rows to the table
+    for task in pending_task:
+        content += f"<tr><td>{task['name']}</td><td>{task['exp_end_date']}</td><td>{task['subject']}</td><td>{task['project']}</td></tr>"
+    
+    # Close the table tags
+    content += "</tbody></table>"
+    email_list = [email.name for email in raw_email_list]
+        
+    frappe.sendmail(
+        recipients='asdad@sdasd.com',
+        cc=email_list,
+        subject= f"Your Task not completed Yet",
+        expose_recipients= 'header',
+        message=content,
+
+        )

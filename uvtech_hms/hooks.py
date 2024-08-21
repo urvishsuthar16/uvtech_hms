@@ -149,6 +149,9 @@ scheduler_events = {
 				"uvtech_hms.hms.overiders.utilis.remove_default_shift"
 			],
 		},
+        "hourly": [
+				"uvtech_hms.hms.overiders.utilis.test_time"
+		],
 # # 	"daily": [
 # # 		"uvtech_hms.tasks.daily"
 # # 	],

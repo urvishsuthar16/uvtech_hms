@@ -7,7 +7,8 @@ class HmsTimesheet(Document):
         hms_attendance = frappe.get_list('Hms Attendance',
         filters={
             'employee': self.employee,
-            'attendance_date': ['between', [self.start_date, self.end_date]]
+            'attendance_date': ['between', [self.start_date, self.end_date]],
+            'status': 'Present'
         },
         fields=['name', 'in_time', 'out_time', 'attendance_date','status','employee',
         'standard__rate','standard_hours','extra_hours','extra_rate','working_hours']

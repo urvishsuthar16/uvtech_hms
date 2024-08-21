@@ -10,6 +10,8 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 	let employee_name = null;
 	var currentHour = new Date().getHours();
 
+	// create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
+
 	// Create a custom container for the buttons inside the page body
 	let button_container = $(`
 		<div class="button-container" style="padding: 15px;">
@@ -45,16 +47,17 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 
 	button_container.find('.btn-start').on('click', function() {
 		let currentTime = frappe.datetime.now_time();
+
+		// frappe.db.insert({
+			// doctype: 'Hms Attendance',
+			// status: 'Present',
+			// shift: shift_filter_field.get_value(),
+			// in_time: currentTime
+		// }).then(doc => {
+		// 	console.log(doc);
+		// });
 		
-		frappe.db.insert({
-			doctype: 'Hms Attendance',
-			status: 'Present',
-			shift: shift_filter_field.get_value(),
-			in_time: currentTime
-		}).then(doc => {
-			console.log(doc);
-		});
-		
+		create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
 
 		frappe.msgprint(`Start Time recorded: ${currentTime}`);
 
@@ -65,14 +68,9 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 
 	// Handle End Time button click
 	button_container.find('.btn-end').on('click', function() {
-		// frappe.db.set_value('Task', 'TASK00004', {
-		// 	status: 'Working',
-		// 	priority: 'Medium'
-		// }).then(r => {
-		// 	let doc = r.message;
-		// 	console.log(doc);
-		// })
-		frappe.msgprint(`Start Time recorded: ${formattedTime}`); // Show success message
+		let currentTime = frappe.datetime.now_time();
+		create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
+		frappe.msgprint(`Start Time recorded: ${currentTime}`); // Show success message
 
 		// Hide Start button and show End button
 		button_container.find('.btn-start').hide();
@@ -92,6 +90,7 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 
 			if (response.message.default_shift) {
 				shift_filter_field.set_value(response.message.default_shift);
+
 			} else {
 				var shift_dialog = new frappe.ui.Dialog({
 					title: 'Select Shift Type',
@@ -105,7 +104,7 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 							reqd: 1
 						}
 					],
-					primary_action_label: 'Assign Tasks',
+					primary_action_label: 'Confirm',
 					primary_action: function () {
 						current_shift_type = shift_dialog.get_value('shift_type');
 						shift_dialog.hide();
@@ -116,4 +115,23 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 				shift_dialog.show();
 			}
 		});
+}
+
+function create_attendance(userId, employee_id, shift_type) {
+	let today = frappe.datetime.get_today();
+
+	frappe.call({
+		method: 'uvtech_hms.hms.page.hms_checkin.hms_checkin.create_attendance',
+		args: {
+			user: frappe.session.user,
+			employee_id: employee_id,
+			shift_type: shift_type
+		},
+		callback: async function (response) {
+			console.log(response)
+		},
+		error: function (err) {
+			frappe.msgprint(__('Error retrieving attendance'));
+		}
+	});
 }

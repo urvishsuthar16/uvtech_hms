@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "employee",
+  "employee_name",
   "column_break_cnvz",
   "start_date",
   "column_break_rlrq",
@@ -90,11 +91,18 @@
    "fieldname": "refresh_btn",
    "fieldtype": "Button",
    "label": "Refresh"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 20:58:46.697519",
+ "modified": "2024-08-21 14:57:13.867839",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Timesheet",

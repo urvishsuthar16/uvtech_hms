@@ -53,7 +53,7 @@ def assign_and_get_task(user,shift_type,employee_id):
                         "exp_end_date": todays_date,
                         "custom_shift":shift_type,
                         "type":task['type'],
-                        "project":task['project']
+                        "project":task['project'],
                     })
                     new_task.insert(ignore_permissions=True)
 
@@ -136,10 +136,6 @@ def upload_files_and_change_task_status(files,taskId,user=None):
         # frappe.throw(i)
         task.append('custom_images',{'images':i})
     task.save(ignore_permissions=True)
-        
-
-
-
 
 @frappe.whitelist()
 def set_total_time(totalHours, totalMinutes):
@@ -162,7 +158,7 @@ def set_total_time(totalHours, totalMinutes):
 
     except Exception as e:
         frappe.log_error(message=str(e), title="Error in set_total_time")
-        frappe.throw(_('Error updating total time: {0}').format(str(e)))
+        frappe.throw(('Error updating total time: {0}').format(str(e)))
    
     
 
