@@ -112,37 +112,37 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						</div>`
 
 				},
-				{
-					fieldtype: 'Table',
-					fieldname: 'files',
-					label: 'Child Table',
-					// reqd: 1,
-					in_list_view: 1,
-					data: [], // You can set default data here if needed
-					fields: [
-						{
-							fieldname: 'image',
-							fieldtype: 'Attach',
-							label: 'Image',
-							in_list_view: 1
-						}
-					]
-				}
+				// {
+				// 	fieldtype: 'Table',
+				// 	fieldname: 'files',
+				// 	label: 'Child Table',
+				// 	// reqd: 1,
+				// 	in_list_view: 1,
+				// 	data: [], // You can set default data here if needed
+				// 	fields: [
+				// 		{
+				// 			fieldname: 'image',
+				// 			fieldtype: 'Attach',
+				// 			label: 'Image',
+				// 			in_list_view: 1
+				// 		}
+				// 	]
+				// }
 			],
 			primary_action_label: 'Complete',
 			primary_action: function () {
-				var values = dialog.get_values();
+				// var values = dialog.get_values();
 
-				if (values.files && values.files.length) {
-					let fileslist = values.files.map(row => row.image);
-					uploadFilesAndCompleteTask(fileslist, taskId);
-					window.location.reload();
+				// if (values.files && values.files.length) {
+				// 	let fileslist = values.files.map(row => row.image);
+				// 	uploadFilesAndCompleteTask(fileslist, taskId);
+				// 	// window.location.reload();
 
-				} else {
-					console.log('No images uploaded.');
-					uploadFilesAndCompleteTask([], taskId);
-					window.location.reload();
-				}
+				// } else {
+				// 	console.log('No images uploaded.');
+				// 	uploadFilesAndCompleteTask([], taskId);
+				// 	// window.location.reload();
+				// }
 
 				var fileInputs = document.getElementById('file-input').files;
 				console.log(allimages)
