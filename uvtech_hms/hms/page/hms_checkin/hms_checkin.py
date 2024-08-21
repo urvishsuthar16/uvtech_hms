@@ -5,7 +5,11 @@ from frappe.utils import today, now
 
 @frappe.whitelist()
 def create_attendance(user, employee_id, shift_type):
-    existing_attendace = frappe.db.get_value('Hms Attendance',{'emp_user':user,'attendance_date':today()},['in_time','name','working_hours'])
+    existing_attendace = frappe.db.get_value('Hms Attendance',{'emp_user':user,'attendance_date':today()},['in_time','name','working_hours','out_time'])
+    if existing_attendace:
+        if existing_attendace[3]:
+            frappe.throw(f'Attendance already Exist for today')
+            
     if existing_attendace and existing_attendace[2] == 0:
         frappe.db.set_value('Hms Attendance', existing_attendace[1], {
 			'status': 'Present',

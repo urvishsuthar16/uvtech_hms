@@ -156,14 +156,14 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 							// Check if all files have been uploaded
 							if (updatedFilesList.length === allimages.length) {
 								uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
-								// window.location.reload();
+								window.location.reload();
 							}
 						});
 					});
 				} else {
 					console.log('No images uploaded.');
 					uploadFilesAndCompleteTask([], taskId, frappe.session.user);
-					// window.location.reload();
+					window.location.reload();
 				}
 
 				dialog.hide();
@@ -219,24 +219,47 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			var files = e.target.files;
 			allimages.push(...files);
 			var previewContainer = $('#preview-container');
-
+		
 			// Clear the preview container before appending new images
 			previewContainer.empty();
-
+		
 			// Loop through all the images in allimages array and display them
-			allimages.forEach(file => {
-				var reader = new FileReader();
-				reader.onload = function (e) {
-					var img = $('<img>').attr('src', e.target.result)
-						.css({
-							width: '100px',
-							height: '100px',
-							margin: '5px',
-							border: '1px solid #ccc'
-						});
-					previewContainer.append(img);
-				}
-				reader.readAsDataURL(file);
+			allimages.forEach((file, index) => {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+							// Create an image element
+							var img = $('<img>').attr('src', e.target.result)
+									.css({
+											width: '100px',
+											height: '100px',
+											margin: '5px',
+											border: '1px solid #ccc'
+									});
+		
+							// Create a delete button
+							var deleteButton = $('<button>')
+									.text('Delete')
+									.css({
+											display: 'block',
+											margin: '5px auto',
+											cursor: 'pointer',
+											backgroundColor: '#ff4d4d',
+											color: 'white',
+											border: 'none',
+											padding: '5px',
+											borderRadius: '4px'
+									})
+									.on('click', function () {
+											// Remove the image from the preview
+											img.remove();
+											deleteButton.remove();
+											allimages.splice(index, 1);
+									});
+		
+							// Append image and delete button to the preview container
+							previewContainer.append(img).append(deleteButton);
+					}
+					reader.readAsDataURL(file);
 			});
 		});
 	});

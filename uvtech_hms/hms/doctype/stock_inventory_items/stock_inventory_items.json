@@ -23,7 +23,7 @@
   {
    "columns": 4,
    "fieldname": "qty",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Qty"
   },
@@ -38,7 +38,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-19 01:19:14.468630",
+ "modified": "2024-08-21 18:53:55.792239",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Stock Inventory items",

@@ -92,7 +92,7 @@
    "no_copy": 1,
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "Present\nAbsent\nOn Leave",
+   "options": "\nPresent\nAbsent\nOn Leave",
    "reqd": 1,
    "search_index": 1
   },
@@ -214,7 +214,6 @@
    "fetch_from": "employee.custom_standard_rate",
    "fieldname": "standard__rate",
    "fieldtype": "Float",
-   "hidden": 1,
    "label": "Standard  Rate",
    "precision": "2",
    "read_only": 1
@@ -251,7 +250,7 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-21 14:34:26.168863",
+ "modified": "2024-08-21 18:36:58.416647",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
