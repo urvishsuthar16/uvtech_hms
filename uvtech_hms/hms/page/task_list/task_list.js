@@ -282,8 +282,8 @@ function assignTasks(userId, employee_id, shift_type, page) {
 
 				// Sort the tasks based on the name field
 				tasks.sort((a, b) => {
-					if (a.name < b.name) return -1;
-					if (a.name > b.name) return 1;
+					if (a.custom_priority_no < b.custom_priority_no) return -1;
+					if (a.custom_priority_no > b.custom_priority_no) return 1;
 					return 0;
 				});
 

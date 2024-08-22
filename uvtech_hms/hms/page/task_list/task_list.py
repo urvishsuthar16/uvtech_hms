@@ -10,7 +10,7 @@ def assign_and_get_task(user,shift_type,employee_id):
 
     todays_date=frappe.utils.getdate()
 
-    project_task_list = frappe.db.sql("""SELECT t.name,t.subject,t.project,t.type FROM `tabProject` p 
+    project_task_list = frappe.db.sql("""SELECT t.name,t.subject,t.project,t.type,t.priority,t.custom_priority_no FROM `tabProject` p 
                     LEFT JOIN `tabProject User` u ON p.name = u.parent
                     LEFT JOIN `tabTask` t ON p.name = t.project
                     WHERE u.email = %(email)s
@@ -53,6 +53,7 @@ def assign_and_get_task(user,shift_type,employee_id):
                         "exp_end_date": todays_date,
                         "custom_shift":shift_type,
                         "type":task['type'],
+                        "priority":task["priority"],
                         "project":task['project'],
                     })
                     new_task.insert(ignore_permissions=True)
@@ -79,6 +80,7 @@ def assign_and_get_task(user,shift_type,employee_id):
                         "exp_end_date": todays_date,
                         "custom_shift":shift_type,
                         "type":task['type'],
+                        "priority":task["priority"],
                         "project":task['project']
                     })
                     new_task.insert(ignore_permissions=True)
@@ -108,6 +110,7 @@ def create_task_list(task,user,todays_date,shift_type):
         "exp_end_date": todays_date,
         "custom_shift":shift_type,
         "type":"Daily",
+        "priority":task["priority"],
         "project":task['project']
     })
     new_task.insert(ignore_permissions=True)
