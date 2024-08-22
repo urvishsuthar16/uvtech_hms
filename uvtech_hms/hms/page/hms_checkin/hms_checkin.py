@@ -15,8 +15,8 @@ def create_attendance(user, employee_id, shift_type):
             fields=['in_time','name','working_hours','out_time','shift'],
             order_by='in_time asc',
         )
-	shift_list = frappe.db.get_list('Shift Type', pluck='name')
-	existing_attendace_shit = [row.shift for row in existing_attendace if row.in_time and row.out_time]
+	shift_list = frappe.db.get_list('Shift Type', pluck='name',order_by="name asc")
+	existing_attendace_shit = sorted([row.shift for row in existing_attendace if row.in_time and row.out_time])
 	if shift_list == existing_attendace_shit:
 		frappe.throw(f" All Shift Ended For Today{shift_list == existing_attendace_shit}")
 			  
