@@ -49,7 +49,7 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 		
 		create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
 
-		frappe.msgprint(`Start Time recorded: ${currentTime}`);
+		// frappe.msgprint(`Start Time recorded: ${currentTime}`);
 
 		button_container.find('.btn-start').hide();
 		button_container.find('.btn-end').show();
@@ -60,7 +60,7 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 	button_container.find('.btn-end').on('click', function() {
 		let currentTime = frappe.datetime.now_time();
 		create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
-		frappe.msgprint(`End Time recorded: ${currentTime}`); // Show success message
+		// frappe.msgprint(`End Time recorded: ${currentTime}`); // Show success message
 
 		// Hide Start button and show End button
 		button_container.find('.btn-start').hide();
