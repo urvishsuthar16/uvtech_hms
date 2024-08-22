@@ -4,11 +4,7 @@ from datetime import date , datetime
 from frappe.utils import today, now
 
 @frappe.whitelist()
-def create_attendance(user, employee_id, shift_type):
-    # existing_attendace = frappe.db.get_value('Hms Attendance',
-    #     {'emp_user':user,'attendance_date':today(),
-    #      "shift":shift_type},['in_time','name','working_hours','out_time','shift'])
-    
+def create_attendance(user, employee_id, shift_type):  
 
 	existing_attendace = frappe.db.get_list('Hms Attendance',
             filters= {'emp_user':user,'attendance_date':now()},

@@ -67,6 +67,25 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 		button_container.find('.btn-end').show();
 	});
 	
+	var shift_dialog = new frappe.ui.Dialog({
+		title: 'Select Shift Type',
+		fields: [
+			{
+				fieldname: 'shift_type',
+				fieldtype: 'Link',
+				label: 'Shift Type',
+				options: 'Shift Type',
+				default: currentHour < 12 ? "Morning" : "Evening",
+				reqd: 1
+			}
+		],
+		primary_action_label: 'Confirm',
+		primary_action: function () {
+			current_shift_type = shift_dialog.get_value('shift_type');
+			shift_dialog.hide();
+			shift_filter_field.set_value(current_shift_type);
+		}
+	});
 
 
 	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', "default_shift", "employee_name"])
@@ -78,10 +97,10 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 			current_employee_id = userId;
 			employee_name_field.set_value(response.message.employee_name);
 
-			if (response.message.default_shift) {
-				shift_filter_field.set_value(response.message.default_shift);
+			// if (response.message.default_shift) {
+				// shift_filter_field.set_value(response.message.default_shift);
 
-			} else {
+			// } else {
 				var shift_dialog = new frappe.ui.Dialog({
 					title: 'Select Shift Type',
 					fields: [
@@ -103,7 +122,7 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 				});
 
 				shift_dialog.show();
-			}
+			// }
 		});
 }
 

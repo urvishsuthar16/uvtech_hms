@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2024-08-20 19:17:05.342104",
+ "modified": "2024-08-22 18:42:16.144089",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "hms-checkin",
@@ -13,6 +13,12 @@
  "roles": [
   {
    "role": "Employee"
+  },
+  {
+   "role": "SPL Manager"
+  },
+  {
+   "role": "SPL Staff"
   }
  ],
  "script": null,

@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2024-08-18 18:20:09.341705",
+ "modified": "2024-08-22 18:42:48.934622",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "hms-attendance-list",
@@ -13,6 +13,12 @@
  "roles": [
   {
    "role": "Employee"
+  },
+  {
+   "role": "SPL Manager"
+  },
+  {
+   "role": "SPL Staff"
   }
  ],
  "script": null,

@@ -250,7 +250,7 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-21 18:36:58.416647",
+ "modified": "2024-08-22 18:43:26.980324",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
@@ -266,6 +266,30 @@
    "read": 1,
    "report": 1,
    "role": "Employee",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "SPL Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "SPL Staff",
    "share": 1,
    "write": 1
   }
