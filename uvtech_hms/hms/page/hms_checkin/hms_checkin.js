@@ -46,15 +46,6 @@ frappe.pages['hms-checkin'].on_page_load = function(wrapper) {
 
 	button_container.find('.btn-start').on('click', function() {
 		let currentTime = frappe.datetime.now_time();
-
-		// frappe.db.insert({
-			// doctype: 'Hms Attendance',
-			// status: 'Present',
-			// shift: shift_filter_field.get_value(),
-			// in_time: currentTime
-		// }).then(doc => {
-		// 	console.log(doc);
-		// });
 		
 		create_attendance(frappe.session.user, employee_name_field.get_value(), shift_filter_field.get_value())
 
