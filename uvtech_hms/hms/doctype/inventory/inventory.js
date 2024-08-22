@@ -3,22 +3,25 @@
 
 frappe.ui.form.on("Inventory", {
     onload_post_render(frm) {
-		frappe.db.get_list('Item', {
-            filters: {
-                'disabled':0
-            }
-        }).then(records => {
-            for (let item of records){
-            console.log(item.name)
-                let row = frm.add_child('inventory_items', {
+        if(frm.is_new()){
+
+            frappe.db.get_list('Item', {
+                filters: {
+                    'disabled':0
+                }
+            }).then(records => {
+                for (let item of records){
+                    console.log(item.name)
+                    let row = frm.add_child('inventory_items', {
                         item_code: item.name,
                         qty: 0
                     });
                     
                     frm.refresh_field('inventory_items');
-
-            }
-        })
+                    
+                }
+            })
+        }
 
 	},
     refresh(frm) {
