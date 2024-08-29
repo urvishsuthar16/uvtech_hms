@@ -13,7 +13,7 @@ def test_time():
 
     morning_shift_end = datetime.combine(datetime.now(),datetime.min.time()) + morning_shift
 
-    evening_shift = frappe.frappe.db.get_value('Shift Type','Evening','end_time')
+    evening_shift = frappe.db.get_value('Shift Type','Evening','end_time')
     evening_shift_end = datetime.combine(datetime.now(),datetime.min.time()) + evening_shift
 
     if frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),morning_shift_end) >= 1 and frappe.utils.time_diff_in_hours(frappe.utils.nowtime(),morning_shift_end) < 2:
