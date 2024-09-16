@@ -12,10 +12,10 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/uvtech_hms/css/uvtech_hms.css"
 # app_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
-
+app_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
 # include js, css files in header of web template
 # web_include_css = "/assets/uvtech_hms/css/uvtech_hms.css"
-# web_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
+web_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "uvtech_hms/public/scss/website"
@@ -167,6 +167,7 @@ scheduler_events = {
 # # 	],
 }
 
+on_session_creation = 'uvtech_hms.update.navigate_to_spl_attendance'
 # Testing
 # -------
 
