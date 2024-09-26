@@ -15,21 +15,30 @@
         th {
             background-color: #f2f2f2;
         }
-        .btn-primary {
+        .completed-button {
             background-color: #4CAF50; /* Green background */
             color: white; /* White text */
             border: none;
-            padding: 10px 20px;
+            padding: 5px 10px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
+            font-size: 10px;
             margin: 4px 2px;
             cursor: pointer;
-            border-radius: 4px; /* Optional: adds rounded corners */
+            border-radius: 4px; 
         }
-        .btn-primary:hover {
-            background-color: #45a049; /* Darker green when hovered */
+        .completed-button:hover {
+            background-color: #0f9116; 
+        }
+        .Completed{
+            background-color: rgb(214, 56, 56) !important; 
+        }
+        .Completed:hover{
+            background-color: rgb(175, 9, 9) !important; 
+        }
+        .subject-Completed {
+        text-decoration: line-through !important;
         }
     </style>
 </head>
@@ -49,10 +58,10 @@
         {% if data.length %}
         {% for record in data %}
             <tr>
-                <td>{{ record.subject }}</td>
+                <td class="subject-{{ record.status}}">{{ record.subject }}</td>
                 <td>{{ record.custom_shift }}</td>
                 <td>
-                    <button button id={{ record.name }} class="btn btn-primary">Complete</button>
+                    <button button id={{ record.name }} class="completed-button {{ record.status}}">Complete</button>
                 </td>
             </tr>
         {% endfor %}

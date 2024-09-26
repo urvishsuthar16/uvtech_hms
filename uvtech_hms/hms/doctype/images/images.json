@@ -11,13 +11,14 @@
   {
    "fieldname": "images",
    "fieldtype": "Attach",
+   "in_list_view": 1,
    "label": "Images"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-08-01 18:51:25.355288",
+ "modified": "2024-09-16 14:20:13.632539",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Images",

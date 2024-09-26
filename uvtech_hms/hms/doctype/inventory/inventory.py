@@ -10,33 +10,62 @@ class Inventory(Document):
     pass
 
 @frappe.whitelist()
-def send_mail(docname, email_template_text):
+def send_mail(docname):
     # Fetch the Inventory document
     doc = frappe.get_doc("Inventory", docname)
+    items_data = doc.inventory_items
+    supplier_list = set()
+
+    for each_row in items_data:
+        if each_row.supplier:
+            supplier_list.add(each_row.supplier)
+
+    supplier_list = list(supplier_list)
+
+    for supplier in supplier_list:
+        supplier_records = []
+        
+        # Step 3: Filter the rows from inventory_items based on the supplier
+        for each_row in items_data:
+            if each_row.supplier == supplier:
+                supplier_records.append(each_row)
+        supplier_email_id =frappe.get_value("Supplier", supplier, "email_id")
+
+        email_format(supplier, supplier_records, supplier_email_id, doc.email_template_text)
+
+    frappe.msgprint("Email sent successfully.")
+
+
+
+
+
+
+def email_format(supplier, items_list, supplier_email_id, email_templete):
+
+    email_content = email_templete.replace('{{suppler_name}}', supplier)
     
-    # Initialize the content with the email template text and HTML table structure
     content = f"""
-        <p>{email_template_text}</p>  <!-- Add the email template text -->
-        <p>Here are the details of the inventory items:</p>
+        <p></p>
+        {email_content}
         <table border="1" cellspacing="0" cellpadding="5">
             <thead>
                 <tr>
                     <th>Item Code</th>
-                    
                     <th>Quantity</th>
+                    <th>Price</th>
                 </tr>
             </thead>
             <tbody>
     """
     
-    # Loop through the Stock Inventory Item table and append rows to the table
-    for item in doc.inventory_items:  # Assuming 'inventory_items' is the child table fieldname
+    for item in items_list: 
         if item.qty>0:
             content += f"""
                 <tr>
                     <td>{item.item_code}</td>
                     
                     <td>{item.qty}</td>
+                     <td>{item.price}</td>
                 </tr>
             """
     
@@ -45,13 +74,12 @@ def send_mail(docname, email_template_text):
             </tbody>
         </table>
     """
-    
     # Send the email
     frappe.sendmail(
-        recipients=doc.supplier_email,  # Replace with the appropriate recipient
-        subject=f"Inventory Update for {doc.name}",
+        recipients=supplier_email_id,
+        subject=f"Inventory Update for {supplier}",
         message=content,
     )
     
     # Return success message
-    frappe.msgprint("Email sent successfully.")
+    

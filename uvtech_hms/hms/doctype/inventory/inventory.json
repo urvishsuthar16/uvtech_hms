@@ -6,9 +6,11 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "date",
   "supplier",
   "column_break_wryn",
   "supplier_email",
+  "hms_price_list",
   "section_break_kd88",
   "inventory_items",
   "email_template",
@@ -69,12 +71,24 @@
   {
    "fieldname": "column_break_wryn",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "Now",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "hms_price_list",
+   "fieldtype": "Link",
+   "label": "HMS Price List",
+   "options": "HMS Price List",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
- "is_submittable": 1,
  "links": [],
- "modified": "2024-08-20 20:15:52.330926",
+ "modified": "2024-09-13 19:24:36.746052",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Inventory",
@@ -91,7 +105,6 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
-   "submit": 1,
    "write": 1
   }
  ],
