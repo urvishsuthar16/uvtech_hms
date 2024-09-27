@@ -33,14 +33,13 @@ def assign_and_get_task(user,shift_type,employee_id):
         AND type = 'Daily'
         AND status = 'Completed' """,({"shift":shift_type,"owner":user,"date":todays_date}),as_dict=1)
     
-    if not task_list and not task_list_completed:
-        frappe.db.set_value('Employee',employee_id,"default_shift","")
-
+    
     if not task_list:
         if  task_list_completed and shift_type:
-            frappe.db.set_value('Employee',employee_id,"default_shift","")
+            pass
+            # frappe.db.set_value('Employee',employee_id,"default_shift","")
         else:
-            frappe.db.set_value('Employee',employee_id,"default_shift",shift_type)
+            # frappe.db.set_value('Employee',employee_id,"default_shift",shift_type)
 
             for task in project_task_list:
                 # condit = task.type == 'Daily' and not "Monday" == todays_date.strftime("%A")
