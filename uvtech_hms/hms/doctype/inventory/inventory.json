@@ -26,6 +26,7 @@
    "depends_on": "eval: frappe.user_roles.includes(\"Stock Manager\")",
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Supplier ",
    "options": "Supplier"
   },
@@ -88,7 +89,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-13 19:24:36.746052",
+ "modified": "2024-09-27 19:34:23.539155",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Inventory",

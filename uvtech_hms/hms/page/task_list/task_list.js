@@ -83,7 +83,7 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 						shift_filter_field.set_value(current_shift_type);
 		
 						if (userId) {
-							frappe.db.set_value("Employee", current_employee_id, "default_shift", current_shift_type);
+							// frappe.db.set_value("Employee", current_employee_id, "default_shift", current_shift_type);
 							frappe.call({
 								method: 'uvtech_hms.hms.page.task_list.task_list.delete_existing_tasks',
 								args: {
@@ -121,9 +121,9 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 			current_employee_id = userId;
 			employee_name_field.set_value(response.message.employee_name);
 
-			if (response.message.default_shift) {
-				shift_filter_field.set_value(response.message.default_shift);
-			}
+			// if (response.message.default_shift) {
+			// 	shift_filter_field.set_value(response.message.default_shift);
+			// }
 			assignTasksTable( userId, response.message.default_shift, page)
 			// assignTasks(userId, userId, response.message.default_shift, page)
 

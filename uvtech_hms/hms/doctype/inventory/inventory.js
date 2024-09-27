@@ -24,7 +24,7 @@ frappe.ui.form.on("Inventory", {
     },
     refresh(frm) {
         
-        if (frappe.user_roles.includes("Stock Manager") && !frm.is_new()) {
+        if (frappe.user_roles.includes("SPL Manager") && !frm.is_new()) {
 
             frm.add_custom_button(__('Send Mail'), function () {
                 frappe.call({
