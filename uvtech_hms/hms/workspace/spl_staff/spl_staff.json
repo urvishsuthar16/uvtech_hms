@@ -1,0 +1,63 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"yo7ry21aur\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SPL Staff</span>\",\"col\":12}},{\"id\":\"d0Q01BaaZb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Task\",\"col\":3}},{\"id\":\"L_Zi9fa0Py\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inventory\",\"col\":3}},{\"id\":\"oMTX53z85c\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance\",\"col\":3}},{\"id\":\"J_4IQIlaxq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet Report\",\"col\":3}}]",
+ "creation": "2024-08-01 21:42:41.799273",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "tool",
+ "idx": 1,
+ "indicator_color": "darkgrey",
+ "is_hidden": 0,
+ "label": "SPL Staff",
+ "links": [],
+ "modified": "2024-09-28 18:42:45.395020",
+ "modified_by": "Administrator",
+ "module": "hms",
+ "name": "SPL Staff",
+ "number_cards": [],
+ "owner": "support@uvtechglobal.com",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "SPL Staff"
+  }
+ ],
+ "sequence_id": 2.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Attendance",
+   "link_to": "hms-checkin",
+   "type": "Page"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Task",
+   "link_to": "task-list",
+   "type": "Page"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Inventory",
+   "link_to": "Inventory",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Timesheet Report",
+   "link_to": "Attendance",
+   "type": "Report"
+  }
+ ],
+ "title": "SPL Staff"
+}
