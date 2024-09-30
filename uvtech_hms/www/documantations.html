@@ -1,0 +1,485 @@
+{% extends "templates/web.html" %}
+
+{%- block title -%}{{_("Documentations")}}{%- endblock -%}
+
+{% block page_content %}
+
+<div class="doc-body-section">
+
+    {% if is_spl_manager %}
+    
+    {% if is_spl_staff %}
+    <div class="right-align">
+        <a href="/files/SPL.pdf" class="download-button">Download PDF</a>
+    </div>
+    {% else %}
+    <div class="right-align">
+        <a href="/files/SPL Manager.pdf" class="download-button">Download PDF</a>
+    </div>
+    {% endif %}
+    <section>
+        <h2>Login</h2>
+        <p>1. <strong>Access the Login Page:</strong> To log in to the system, go to <a class="url"
+                href="https://spl.uvtechglobal.com/login">https://spl.uvtechglobal.com/login</a>. You will be taken to
+            the login page where you need to enter your credentials.</p>
+        <p>2. <strong>Enter Credentials:</strong> Type your username and password, then click "Login". Once
+            authenticated, you will be redirected to the SPL Manager home page.</p>
+        <p>3. <strong>Accessing Shortcuts:</strong> From the home page, you will have access to all shortcuts, such as
+            task management, inventory, and more.</p>
+        <img src="/files/Screenshot from 2024-09-28 14-35-31.png" alt="Login page" />
+    </section>
+
+    <section>
+        <h2>User and Employee Creation</h2>
+        <h5>Navigate to the Users Section</h5>
+        <p>1. <strong>Go to Users Section:</strong> To add new users, navigate to the Users section in the system. This
+            is where you manage user accounts.</p>
+        <h5>Create Two Types of Users</h5>
+        <ul>
+            <li><strong>Manager:</strong> Assign the SPL Manager role. This user will have access to advanced system
+                features.</li>
+            <li><strong>Staff:</strong> Assign both SPL Staff and Employee roles. Staff members have specific access
+                permissions suited for day-to-day tasks.</li>
+        </ul>
+        <h5>Assign Module Permissions</h5>
+        <p>2. <strong>Module Permissions:</strong> Both SPL Manager and SPL Staff roles should be granted access to
+            necessary modules like HMS and Desk. These permissions allow users to perform key functions based on their
+            role.</p>
+        <img src="/files/Screenshot from 2024-09-30 09-52-14.png" alt="Role" />
+    </section>
+
+    <section>
+        <h2>Location (Project) and Task Template Creation</h2>
+        <h5>Navigate to the Projects Section</h5>
+        <p>1. <strong>Access Projects:</strong> Go to the Projects section to create and manage locations or specific
+            projects. This is the primary area where new projects are created.</p>
+        <h5>Assign Users to the Project</h5>
+        <p>2. <strong>User Assignment:</strong> While creating a project, make sure to assign the relevant users. Only
+            the users assigned to the project will be eligible to receive tasks related to that project.</p>
+        <p>3. <strong>Single Project Assignment:</strong> Keep in mind that a user can only be assigned to one project
+            at a time. This ensures clarity in task distribution and tracking.</p>
+        <img src="/files/Screenshot from 2024-09-30 09-54-22.png" alt="Role" />
+    </section>
+
+    <section>
+        <h2>Task Template Creation</h2>
+        <h5>Navigate to the Task Templates Section</h5>
+        <p>1. <strong>Create Templates:</strong> Visit the Task Templates section to create task templates that can be
+            reused. Templates help streamline task creation across different projects.</p>
+        <h5>Enable 'Is Template'</h5>
+        <p>2. <strong>Mark as Template:</strong> While creating a task, be sure to enable the 'Is Template' checkbox.
+            This ensures that the task is reusable and available for future projects.</p>
+    </section>
+
+    <section>
+        <h2>Inventory Management</h2>
+        <h5>Fetch Latest Supplier and Price Information</h5>
+        <p>1. <strong>Supplier and Price Updates:</strong> When managing inventory, click the "Assign Supplier" button
+            to automatically fetch the latest supplier and price information. This pulls the most current pricing
+            details for items in your inventory from external price lists.</p>
+        <h5>Automatic Price Updates</h5>
+        <p>2. <strong>Dynamic Pricing:</strong> As users select or update a supplier, the system dynamically fetches and
+            applies the latest price. This real-time update ensures pricing accuracy without manual effort.</p>
+        <h5>Filtering and Copying Data</h5>
+        <p>3. <strong>Filter and Copy:</strong> Use the inventory filter to locate specific items, then copy filtered
+            data such as item code, quantity, and price with a single click. This feature aids in easy data export or
+            sharing.</p>
+        <div class="note">
+            <p><strong>Note:</strong> SPL Managers can send email notifications to all suppliers by clicking the "Send
+                Mail" button, streamlining supplier communication.</p>
+        </div>
+        <div style="width: 100%;" class="video-container">
+            <iframe src="/files/Screencast from 2024-09-27 16-27-26.webm" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <section>
+        <h2>Attendance Management</h2>
+        <h5>Mark Manual Attendance</h5>
+        <p>1. <strong>Manual Attendance:</strong> To mark attendance manually, navigate to the Attendance section via
+            the shortcut on the home page. From here, you can record attendance for all employees under your
+            supervision.</p>
+        <h5>Generate Weekly Timesheet</h5>
+        <p>2. <strong>Generate Timesheet:</strong> Go to the Timesheet Report shortcut. This opens a page displaying
+            attendance records for the past week. Adjust the date range to see different time periods or
+            employee-specific records.</p>
+        <h5>View and Export Timesheet Report</h5>
+        <p>3. <strong>Export Reports:</strong> On the report page, view detailed employee attendance data. Export the
+            timesheet for further analysis or sharing.</p>
+        <div class="video-container">
+            <iframe src="/files/Screencast from 2024-09-28 14-56-32.webm" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+    {% endif %}
+    {% if is_spl_staff %}
+    {% if not is_spl_manager %}
+    
+    <div class="right-align">
+        <a href="/files/SPL Staff.pdf" class="download-button">Download PDF</a>
+    </div>
+    {% endif %}
+    <div class="spl-staff-guide">
+
+
+        <section>
+            <h2>Login</h2>
+            <ul>
+                <li><strong>URL:</strong> <a class="url" href="https://spl.uvtechglobal.com/login"
+                        target="_blank">https://spl.uvtechglobal.com/login</a></li>
+                <li>Enter username and password.</li>
+                <li>Upon login, access the home page for Task, Inventory, Attendance, and Timesheet Report shortcuts.
+                </li>
+            </ul>
+            <img src="/files/Screenshot from 2024-09-30 10-30-59.png" alt="Login page" />
+        </section>
+
+        <section>
+            <h2>Attendance</h2>
+            <ul>
+                <li><strong>Access Attendance Page:</strong> Click on the Attendance shortcut from the home page.</li>
+                <li><strong>Select Shift:</strong> If no default shift is assigned, choose one from the dialog prompt.
+                </li>
+                <li><strong>Start Attendance Timer:</strong> Click the "Start Time" button to begin the timer.</li>
+                <li><strong>Stop Attendance Timer:</strong> Click the "End Time" button to stop the timer.</li>
+                <li><strong>View Employee Timesheet Report:</strong> Select an employee, enter the start and end dates,
+                    and view their timesheet report.</li>
+            </ul>
+            <img src="/files/Screenshot from 2024-09-28 12-28-17.png" alt="Timesheet page" />
+        </section>
+
+        <section>
+            <h2>Task Management</h2>
+            <ul>
+                <li><strong>Navigate to Tasks:</strong> Click on the Tasks shortcut from the home page.</li>
+                <li><strong>Generate Tasks:</strong> Click the Generate button and select a shift from the popup.</li>
+                <li><strong>Task Creation:</strong> Tasks are automatically created and assigned after shift selection.
+                </li>
+                <li><strong>Complete Tasks:</strong> Click the Complete button to upload a file. Completed tasks will
+                    display a line-through effect.</li>
+                <li><strong>Shift Change Handling:</strong> Incomplete tasks from the previous shift are removed when
+                    the user changes shifts, and new tasks are assigned for the new shift.</li>
+            </ul>
+            <div style="width: 100%;" class="video-container">
+                <iframe src="/files/Screencast from 2024-09-30 14-02-11.webm" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <section>
+            <h2>Inventory Management</h2>
+            <ul>
+                <li><strong>Navigate to Inventory:</strong> Click on the Inventory shortcut from the home page.</li>
+                <li><strong>View Default Items:</strong> The inventory page displays default items.</li>
+                <li><strong>Update Item Details:</strong> Select an item and update its Price and Quantity.</li>
+                <li><strong>Save Changes:</strong> Click the Save button to apply changes.</li>
+            </ul>
+            <div style="width: 100%;" class="video-container">
+                <iframe src="/files/Screencast from 2024-09-30 14-17-44.webm" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </section>
+    </div>
+    {% endif %}
+
+
+</div>
+
+
+
+<style>
+    .download-button {
+        display: inline-block;
+        /* Makes the link behave like a button */
+        padding: 10px 20px;
+        /* Adds padding for a button-like appearance */
+        background-color: #007BFF;
+        /* Button background color */
+        color: white;
+        /* Text color */
+        text-align: center;
+        /* Centers the text inside the button */
+        border: none;
+        /* Removes default border */
+        border-radius: 5px;
+        /* Rounds the corners */
+        text-decoration: none;
+        /* Removes underline from link */
+        font-size: 16px;
+        /* Font size */
+        cursor: pointer;
+        /* Changes cursor to pointer on hover */
+        transition: background-color 0.3s;
+        /* Smooth background color transition */
+    }
+
+    .download-button:hover {
+        background-color: #0056b3;
+        /* Darker shade on hover */
+    }
+
+    /* Aligns the button to the right */
+    .right-align {
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: flex-end;
+        width: 100%;
+        margin: 20px;
+        max-width: 1000px;
+    }
+
+    /* General body styles */
+    .doc-body-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Arial', sans-serif;
+        background-color: #f7f7f7;
+        padding: 20px;
+    }
+
+    h1,
+    h2,
+    h5 {
+        color: #333;
+        font-weight: bold;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    section {
+        max-width: 1000px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    /* Step-by-step styling */
+    h5 {
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    p {
+        line-height: 1.7;
+        color: #555;
+    }
+
+    /* Ordered steps with numbers */
+    ol {
+        counter-reset: step-counter;
+        list-style: none;
+        padding-left: 0;
+        margin: 20px 0;
+    }
+
+    ol li {
+        counter-increment: step-counter;
+        background-color: #f0f8ff;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    ol li::before {
+        content: counter(step-counter) ".";
+        font-weight: bold;
+        font-size: 18px;
+        color: #007bff;
+        margin-right: 10px;
+    }
+
+    /* Styling for important notes */
+    .note {
+        background-color: #e7f3fe;
+        border-left: 6px solid #2196f3;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+    }
+
+    .note p {
+        margin: 0;
+        color: #31708f;
+        font-size: 14px;
+    }
+
+    /* Buttons for actions */
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    /* URL link styles */
+    .url {
+        color: #007bff;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .url:hover {
+        text-decoration: underline;
+    }
+
+    /* Enhanced table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background-color: #fff;
+        border: 1px solid #ddd;
+    }
+
+    table th,
+    table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #f4f4f4;
+    }
+
+    /* Image container for responsive images */
+    .image-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Video container with responsive design */
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    /* Close button for sections */
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        width: 25px;
+        height: 25px;
+        font-weight: bold;
+        line-height: 25px;
+        text-align: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .close-button:hover {
+        background-color: #b52c2c;
+    }
+
+    /* Step emphasis */
+    strong {
+        color: #333;
+        font-weight: bold;
+    }
+
+    /* Tooltip for more info */
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 768px) {
+        section {
+            padding: 15px;
+        }
+
+        h1,
+        h2,
+        h5 {
+            font-size: 1.2em;
+        }
+
+        .video-container {
+            padding-bottom: 75%;
+            /* Adjust for a more square aspect ratio on smaller screens */
+        }
+    }
+</style>
+
+<script>
+    function downloadPDF() {
+        var doc = new jsPDF(); // Initialize jsPDF instance
+
+        // Convert the HTML content to PDF (assuming 'spl-staff-guide' class contains the content)
+        doc.html(document.querySelector('.spl-staff-guide'), {
+            callback: function (pdf) {
+                pdf.save('spl_staff_guide.pdf'); // Save the PDF with the desired filename
+            },
+            x: 10,
+            y: 10,
+            width: 190 // optional for controlling width
+        });
+    }
+</script>
+
+{% endblock %}
