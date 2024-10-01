@@ -1,4 +1,4 @@
-frappe.pages['task-list'].on_page_load = function(wrapper) {
+frappe.pages['task-list'].on_page_load = function (wrapper) {
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: 'Task List ',
@@ -68,20 +68,20 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 				let current_filter_value = shift_filter_field.get_value();
 
 				let current_shift_type = shift_dialog.get_value('shift_type');
-		
+
 				shift_dialog.hide();
 				if (current_shift_type === current_filter_value) {
 					// Show message indicating the user is already on the same shift
 					frappe.msgprint(__('You are already on the Same Shift Type: {0}.', [current_shift_type]));
-					return 
+					return
 				}
 				// Show confirmation popup
 				frappe.confirm(
 					__('Are you sure you want to assign tasks for Shift Type: {0}?', [current_shift_type]),
-					function() {
-						
+					function () {
+
 						shift_filter_field.set_value(current_shift_type);
-		
+
 						if (userId) {
 							// frappe.db.set_value("Employee", current_employee_id, "default_shift", current_shift_type);
 							frappe.call({
@@ -99,22 +99,22 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 							frappe.msgprint(__('User ID is not available.'));
 						}
 					},
-					function() {
+					function () {
 						// If "No" is clicked, do nothing
 						frappe.msgprint(__('Task assignment cancelled.'));
 					}
 				);
 			}
 		});
-		
+
 		shift_dialog.show();
-		
+
 	}
 
 
 	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', "default_shift", "employee_name"])
 		.then(response => {
-			
+
 			userId = response.message.name;
 
 			employee_field.set_value(userId);
@@ -124,7 +124,7 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 			// if (response.message.default_shift) {
 			// 	shift_filter_field.set_value(response.message.default_shift);
 			// }
-			assignTasksTable( userId, response.message.default_shift, page)
+			assignTasksTable(userId, response.message.default_shift, page)
 			// assignTasks(userId, userId, response.message.default_shift, page)
 
 		})
@@ -135,16 +135,18 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 
 	$(page.body).on('click', '.completed-button', function (e) {
 		var taskId = e.target.id;
-		console.log(taskId)
-		var fileslist = [];
-		var dialog = new frappe.ui.Dialog({
-			title: 'Upload File and Complete Task',
-			fields: [
-				{
-					fieldname: 'image_box',
-					fieldtype: 'HTML',
-					options:
-						`<input type="file" id="file-input" multiple style="display: none;" />
+		frappe.db.get_value("Task", taskId, "custom_is_attachments_need", (r) => {
+
+			if (r.custom_is_attachments_need) {
+				var fileslist = [];
+				var dialog = new frappe.ui.Dialog({
+					title: 'Upload File and Complete Task',
+					fields: [
+						{
+							fieldname: 'image_box',
+							fieldtype: 'HTML',
+							options:
+								`<input type="file" accept="image/*,application/pdf" id="file-input" multiple style="display: none;" />
 							<label for="file-input" style="
 								display: inline-block;
 								padding: 6px 12px;
@@ -160,133 +162,165 @@ frappe.pages['task-list'].on_page_load = function(wrapper) {
 							<!-- Image previews will be inserted here -->
 						</div>`
 
-				},
-				
-			],
-			primary_action_label: 'Complete',
-			primary_action: function () {
+						},
 
-				var fileInputs = document.getElementById('file-input').files;
-				console.log(allimages)
-				if (allimages.length > 0) {
-					Array.from(allimages).forEach(file => {
-						console.log(file)
-						uploadSingleFile(file, taskId, frappe.session.user, fileslist, function (updatedFilesList) {
+					],
+					primary_action_label: 'Complete',
+					primary_action: function () {
 
-							// Check if all files have been uploaded
-							if (updatedFilesList.length === allimages.length) {
-								uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
-								// window.location.reload();
+						var fileInputs = document.getElementById('file-input').files;
+						if (allimages.length > 0) {
+							Array.from(allimages).forEach(file => {
+								handleFileUpload(file, taskId, frappe.session.user, fileslist, function (updatedFilesList) {
+
+									// Check if all files have been uploaded
+									if (updatedFilesList.length === allimages.length) {
+										uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
+										// window.location.reload();
+									}
+								});
+							});
+						} else {
+							uploadFilesAndCompleteTask([], taskId, frappe.session.user);
+							// window.location.reload();
+						}
+
+						dialog.hide();
+					}
+				});
+
+				dialog.show();
+				function handleFileUpload(file, taskId, user, fileslist, callback) {
+					if (file.type === 'image/heic' || file.type === 'image/heif') {
+						heic2any({
+							blob: file,
+							toType: "image/jpeg", // Or use "image/png"
+						}).then((convertedBlob) => {
+							console.log(convertedBlob, 'convertedBlob aaa eword');
+							uploadSingleFile(new File([convertedBlob], file.name + ".jpg"), taskId, user, fileslist, callback);
+						}).catch(error => {
+							if (error.code === 1 && error.message.includes('browser readable')) {
+								console.log('File is already browser readable. Skipping conversion.');
+								uploadSingleFile(file, taskId, user, fileslist, callback);
+							} else {
+								console.error('Error converting HEIC to JPEG:', error);
+								console.error('File details:', file);
 							}
 						});
-					});
-				} else {
-					console.log('No images uploaded.');
-					uploadFilesAndCompleteTask([], taskId, frappe.session.user);
-					// window.location.reload();
-				}
-
-				dialog.hide();
-			}
-		});
-
-		// Show the dialog
-		dialog.show();
-
-		// Function to upload a single file
-		function uploadSingleFile(file, taskId, user, fileslist, callback) {
-			let formData = new FormData();
-			formData.append('file', file, file.name);
-
-			// Example additional form data
-			formData.append('task_id', taskId);
-			formData.append('user', user);
-
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/method/upload_file', true);
-			xhr.setRequestHeader('Accept', 'application/json');
-			xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
-
-			xhr.onload = function () {
-				if (xhr.status === 200) {
-					const response = JSON.parse(xhr.responseText);
-					if (response.message && response.message.file_url) {
-						const filePath = response.message.file_url;
-						console.log('File uploaded successfully:', filePath);
-
-						// Append the file path to fileslist
-						fileslist.push(filePath);
-
-						// Execute the callback function with the updated fileslist
-						callback(fileslist);
 					} else {
-						console.error('File upload successful, but no file path returned.');
+						// If not HEIC, just upload the file as is
+						uploadSingleFile(file, taskId, user, fileslist, callback);
 					}
-				} else {
-					console.error('Error uploading file:', xhr.statusText);
 				}
-			};
+				
 
-			xhr.onerror = function () {
-				console.error('Request failed');
-			};
+				function uploadSingleFile(file, taskId, user, fileslist, callback) {
+					let formData = new FormData();
+					formData.append('file', file, file.name);
 
-			xhr.send(formData);
-		}
+					// Example additional form data
+					formData.append('task_id', taskId);
+					formData.append('user', user);
 
-		// Add the change event listener after the dialog is shown
-		$(document).off('change', '#file-input').on('change', '#file-input', function (e) {
-			var files = e.target.files;
-			allimages.push(...files);
-			var previewContainer = $('#preview-container');
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/api/method/upload_file', true);
+					xhr.setRequestHeader('Accept', 'application/json');
+					xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
 
-			// Clear the preview container before appending new images
-			previewContainer.empty();
+					xhr.onload = function () {
+						if (xhr.status === 200) {
+							const response = JSON.parse(xhr.responseText);
+							if (response.message && response.message.file_url) {
+								const filePath = response.message.file_url;
 
-			// Loop through all the images in allimages array and display them
-			allimages.forEach((file, index) => {
-				var reader = new FileReader();
-				reader.onload = function (e) {
-					// Create an image element
-					var img = $('<img>').attr('src', e.target.result)
-						.css({
-							width: '100px',
-							height: '100px',
-							margin: '5px',
-							border: '1px solid #ccc'
-						});
+								// Append the file path to fileslist
+								fileslist.push(filePath);
 
-					// Create a delete button
-					var deleteButton = $('<button>')
-						.text('Delete')
-						.css({
-							display: 'block',
-							margin: '5px auto',
-							cursor: 'pointer',
-							backgroundColor: '#ff4d4d',
-							color: 'white',
-							border: 'none',
-							padding: '5px',
-							borderRadius: '4px'
-						})
-						.on('click', function () {
-							// Remove the image from the preview
-							img.remove();
-							deleteButton.remove();
-							allimages.splice(index, 1);
-						});
+								// Execute the callback function with the updated fileslist
+								callback(fileslist);
+							} else {
+								console.error('File upload successful, but no file path returned.');
+							}
+						} else {
+							console.error('Error uploading file:', xhr.statusText);
+						}
+					};
 
-					// Append image and delete button to the preview container
-					previewContainer.append(img).append(deleteButton);
+					xhr.onerror = function () {
+						console.error('Request failed');
+					};
+
+					xhr.send(formData);
 				}
-				reader.readAsDataURL(file);
-			});
+
+				// Add the change event listener after the dialog is shown
+				$(document).off('change', '#file-input').on('change', '#file-input', function (e) {
+					var files = e.target.files;
+					allimages.push(...files);
+					var previewContainer = $('#preview-container');
+
+					// Clear the preview container before appending new images
+					previewContainer.empty();
+
+					// Loop through all the images in allimages array and display them
+					allimages.forEach((file, index) => {
+						var reader = new FileReader();
+						reader.onload = function (e) {
+							// Create an image element
+							var img = $('<img>').attr('src', e.target.result)
+								.css({
+									width: '100px',
+									height: '100px',
+									margin: '5px',
+									border: '1px solid #ccc'
+								});
+
+							// Create a delete button
+							var deleteButton = $('<button>')
+								.text('Delete')
+								.css({
+									display: 'block',
+									margin: '5px auto',
+									cursor: 'pointer',
+									backgroundColor: '#ff4d4d',
+									color: 'white',
+									border: 'none',
+									padding: '5px',
+									borderRadius: '4px'
+								})
+								.on('click', function () {
+									// Remove the image from the preview
+									img.remove();
+									deleteButton.remove();
+									allimages.splice(index, 1);
+								});
+
+							// Append image and delete button to the preview container
+							previewContainer.append(img).append(deleteButton);
+						}
+						reader.readAsDataURL(file);
+					});
+				});
+
+
+			} else {
+				frappe.confirm(
+					'Are you sure you want to Complete this Task?',
+					function () {
+
+						uploadFilesAndCompleteTask([], taskId, frappe.session.user);
+					},
+
+				);
+
+
+			}
 		});
 	});
 
 
-	
-	function assignTasksTable( userId, shift, page) {
+
+	function assignTasksTable(userId, shift, page) {
 		frappe.call({
 			method: 'uvtech_hms.hms.page.task_list.task_list.get_all_task_list',
 			args: {
