@@ -55,3 +55,13 @@ def navigate_to_spl_attendance():
                     "indicator": "red",  # Try specifying an indicator explicitly
                 }
             )
+
+
+
+@frappe.whitelist()
+def get_user_role():
+    user_roles = frappe.get_roles(frappe.session.user)
+    if "SPL Manager" in user_roles:
+        return True
+    else:
+        return False

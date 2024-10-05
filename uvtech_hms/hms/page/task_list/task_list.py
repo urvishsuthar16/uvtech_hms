@@ -203,3 +203,55 @@ def get_all_task_list(user,shift_type,employee_id):
         AND status = 'Open' """,({"owner":user,"date":todays_date}),as_dict=1)
     all_task_list = today_completed_tasks + open_task_list
     return all_task_list
+
+
+
+@frappe.whitelist()
+def update_shift_value(shift):
+    user = frappe.session.user
+    project_name = get_user_assigned_project()
+    # Fetch the employee record based on the logged-in user
+    employee = frappe.get_value("Employee", {"user_id": user}, "name")
+    
+    if employee:
+        # Check if a record with the fetched employee ID exists in "Staff Temporary Data"
+        existing_record = frappe.get_all("Staff temporary data", filters={"employee_id": employee}, limit=1)
+
+        if existing_record:
+            # If the record exists, update the shift
+            doc = frappe.get_doc("Staff temporary data", existing_record[0].name)
+            doc.shift = shift
+            doc.save()
+        else:
+            # If the record doesn't exist, create a new one
+            doc = frappe.get_doc({
+                "doctype": "Staff temporary data",
+                "user": user,
+                "employee_id": employee,
+                "shift": shift,
+                "location":project_name,
+                # Add other necessary fields like name and project if available
+            })
+            doc.insert()
+    else:
+        frappe.throw(f"No Employee found for the user: {user}")
+
+
+
+@frappe.whitelist()
+def get_user_assigned_project():
+    user = frappe.session.user
+    assigned_project = frappe.db.sql("""
+        SELECT parent 
+        FROM `tabProject User` 
+        WHERE user = %s AND custom_assiged = 1
+    """, user, as_dict=True)
+
+    if assigned_project:
+        # Fetch project details based on parent (which refers to the Project doctype)
+        project_name = assigned_project[0].parent
+        project = frappe.get_doc("Project", project_name)
+        return project.name
+            
+    else:
+        return ''

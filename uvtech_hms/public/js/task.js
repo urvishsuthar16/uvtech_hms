@@ -1,6 +1,17 @@
 frappe.ui.form.on('Task', {
     refresh(frm) {
         // Initialize base HTML
+        frappe.call({
+            method: "uvtech_hms.update.get_user_role",
+            
+            callback: function (r) {
+                if (r.message){
+                    $('[data-fieldname="custom_attachments"]').hide()
+
+                }
+
+            },
+        });
         let base_html = `<div style="display: flex; flex-wrap: wrap;">`;
 
         // Loop through each custom image and append the HTML

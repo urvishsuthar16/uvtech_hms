@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"w7Ga98vZV7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SPL Home</span>\",\"col\":12}},{\"id\":\"rpyyEQu8M6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"eseGy7wJ4m\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Project\",\"col\":3}},{\"id\":\"N7X3Epp4Bp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Task\",\"col\":3}},{\"id\":\"bf0XOkhg4Q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"MgDNU3ueWs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"OyazOb-wmc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"User\",\"col\":3}},{\"id\":\"nxLUyofT8u\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"Iyk7rJlNGI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shift\",\"col\":3}},{\"id\":\"iXRq7YsmX_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inventory\",\"col\":3}},{\"id\":\"8J_zgWvJa5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance\",\"col\":3}},{\"id\":\"HQcNCHRBCd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet\",\"col\":3}},{\"id\":\"7k1Ays-LRN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet Report\",\"col\":3}}]",
+ "content": "[{\"id\":\"w7Ga98vZV7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">SPL Home</span>\",\"col\":12}},{\"id\":\"rpyyEQu8M6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer\",\"col\":3}},{\"id\":\"eseGy7wJ4m\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Location\",\"col\":3}},{\"id\":\"N7X3Epp4Bp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Task\",\"col\":3}},{\"id\":\"bf0XOkhg4Q\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Supplier\",\"col\":3}},{\"id\":\"MgDNU3ueWs\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"OyazOb-wmc\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"User\",\"col\":3}},{\"id\":\"nxLUyofT8u\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee\",\"col\":3}},{\"id\":\"Iyk7rJlNGI\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shift\",\"col\":3}},{\"id\":\"iXRq7YsmX_\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Inventory\",\"col\":3}},{\"id\":\"8J_zgWvJa5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance\",\"col\":3}},{\"id\":\"HQcNCHRBCd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet\",\"col\":3}},{\"id\":\"7k1Ays-LRN\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Timesheet Report\",\"col\":3}}]",
  "creation": "2024-08-01 21:40:25.923512",
  "custom_blocks": [],
  "docstatus": 0,
@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "SPL Home",
  "links": [],
- "modified": "2024-09-28 18:19:45.613907",
+ "modified": "2024-10-05 19:11:48.525450",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "SPL Home",
@@ -67,7 +67,7 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Project",
+   "label": "Location",
    "link_to": "Project",
    "stats_filter": "[]",
    "type": "DocType"

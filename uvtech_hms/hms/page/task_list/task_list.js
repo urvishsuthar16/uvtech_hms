@@ -13,7 +13,14 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	var currentHour = new Date().getHours();
 	let allimages = []
 
+	let location_filed = page.add_field({
+		label: 'Location',
+		fieldtype: 'Link',
+		fieldname: 'location',
+		options: 'Project',
+		read_only: 1
 
+	});
 	let employee_field = page.add_field({
 		label: 'Employee',
 		fieldtype: 'Link',
@@ -36,7 +43,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		fieldtype: 'Link',
 		fieldname: 'shift_filter',
 		options: "Shift Type",
-		read_only: 1
+		// read_only: 1
 	});
 
 	let regenerate_button = page.add_field({
@@ -51,295 +58,360 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	});
 
 	function generate_the_list() {
-		var shift_dialog = new frappe.ui.Dialog({
-			title: 'Select Shift Type',
-			fields: [
-				{
-					fieldname: 'shift_type',
-					fieldtype: 'Link',
-					label: 'Shift Type',
-					options: 'Shift Type',
-					default: "",
-					reqd: 1
-				}
-			],
-			primary_action_label: 'Assign Tasks',
-			primary_action: function () {
-				let current_filter_value = shift_filter_field.get_value();
 
-				let current_shift_type = shift_dialog.get_value('shift_type');
+		let current_shift_type = shift_filter_field.get_value();
 
-				shift_dialog.hide();
-				if (current_shift_type === current_filter_value) {
-					// Show message indicating the user is already on the same shift
-					frappe.msgprint(__('You are already on the Same Shift Type: {0}.', [current_shift_type]));
-					return
-				}
-				// Show confirmation popup
-				frappe.confirm(
-					__('Are you sure you want to assign tasks for Shift Type: {0}?', [current_shift_type]),
-					function () {
+		if (!current_shift_type) {
+			frappe.msgprint(__('Please select a valid Shift Type before assigning tasks.'));
+			return; // Exit the function if no shift type is selected
+		}
+		// Show confirmation popup
+		frappe.confirm(
+			__('Are you sure you want to assign tasks for Shift Type: {0}?', [current_shift_type]),
+			function () {
+				frappe.dom.freeze('Loading...');
+				shift_filter_field.set_value(current_shift_type);
 
-						shift_filter_field.set_value(current_shift_type);
-
-						if (userId) {
-							// frappe.db.set_value("Employee", current_employee_id, "default_shift", current_shift_type);
-							frappe.call({
-								method: 'uvtech_hms.hms.page.task_list.task_list.delete_existing_tasks',
-								args: {
-									employee_id: userId,
-									shift_type: current_shift_type
-								},
-								callback: function (response) {
-									shift_filter_field.set_value(current_shift_type);
-									assignTasksTable(userId, current_shift_type, page);
-								}
-							});
-						} else {
-							frappe.msgprint(__('User ID is not available.'));
+				if (userId) {
+					// frappe.db.set_value("Employee", current_employee_id, "default_shift", current_shift_type);
+					frappe.call({
+						method: 'uvtech_hms.hms.page.task_list.task_list.delete_existing_tasks',
+						args: {
+							employee_id: userId,
+							shift_type: current_shift_type
+						},
+						callback: function (response) {
+							shift_filter_field.set_value(current_shift_type);
+							assignTasksTable(userId, current_shift_type, page);
+							update_shift_data_templage(current_shift_type)
 						}
-					},
-					function () {
-						// If "No" is clicked, do nothing
-						frappe.msgprint(__('Task assignment cancelled.'));
-					}
-				);
+					});
+				} else {
+					frappe.msgprint(__('User ID is not available.'));
+				}
+			},
+			function () {
+				// If "No" is clicked, do nothing
+				frappe.msgprint(__('Task assignment cancelled.'));
 			}
-		});
-
-		shift_dialog.show();
+		);
 
 	}
 
 
-	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', "default_shift", "employee_name"])
+	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', 'default_shift', 'employee_name'])
 		.then(response => {
-
 			userId = response.message.name;
+			let defaultShift = response.message.default_shift;
 
+			// Set values for employee fields
 			employee_field.set_value(userId);
 			current_employee_id = userId;
 			employee_name_field.set_value(response.message.employee_name);
 
-			// if (response.message.default_shift) {
-			// 	shift_filter_field.set_value(response.message.default_shift);
-			// }
-			assignTasksTable(userId, response.message.default_shift, page)
-			// assignTasks(userId, userId, response.message.default_shift, page)
+			// Check for the shift in 'Staff Temporary Data' first
+			frappe.db.get_value('Staff temporary data', { employee_id: userId }, ['shift'])
+				.then(tempDataResponse => {
+					let shift = tempDataResponse.message ? tempDataResponse.message.shift : null;
 
-		})
-		.catch(err => {
-			frappe.msgprint(__('Error retrieving user information.'));
+					// If shift is found in 'Staff Temporary Data', use it, otherwise use default shift from 'Employee'
+					if (shift) {
+						shift_filter_field.set_value(shift);
+					} else if (defaultShift) {
+						shift_filter_field.set_value(defaultShift);
+					}
+					// Call the function to assign tasks using the correct shift
+					assignTasksTable(userId, shift || defaultShift, page);
+				});
+			frappe.call({
+				method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
+
+				callback: function (response) {
+
+					if (response.message) {
+						location_filed.set_value(response.message);
+					}
+				},
+
+			});
 		});
 
 
-		$(page.body).on('click', '.completed-button', async function (e) {
-			var taskId = e.target.id;
-			let custom_is_attachments_need = (await frappe.db.get_value("Task", taskId, "custom_is_attachments_need")).message.custom_is_attachments_need;
-			var allimages = [];
-		
-			if (custom_is_attachments_need) {
 
-				var fileslist = [];
-				var uniqueId = new Date().getTime(); // Generate a unique ID based on timestamp
-				var dialog = new frappe.ui.Dialog({
-					title: 'Upload File and Complete Task',
-					fields: [
-						{
-							fieldname: 'image_box',
-							fieldtype: 'HTML',
-							options:
-								`<input type="file" accept="image/*,application/pdf" id="file-input-${uniqueId}" multiple style="display: none;" />
-								<label for="file-input-${uniqueId}" style="
-									display: inline-block;
-									padding: 6px 12px;
-									cursor: pointer;
-									background-color: #007bff;
-									color: white;
-									border-radius: 4px;
-									font-size: 14px;
-								">
-									Add
-								</label>
+
+
+	$(page.body).on('click', '.completed-button', async function (e) {
+		var taskId = e.target.id;
+		let custom_is_attachments_need = (await frappe.db.get_value("Task", taskId, "custom_is_attachments_need")).message.custom_is_attachments_need;
+		var allimages = [];
+
+		if (custom_is_attachments_need) {
+
+			var fileslist = [];
+			var uniqueId = new Date().getTime(); // Generate a unique ID based on timestamp
+			var dialog = new frappe.ui.Dialog({
+				title: 'Upload File and Complete Task',
+				fields: [
+					{
+						fieldname: 'image_box',
+						fieldtype: 'HTML',
+						options:
+							`<input type="file" accept="image/*" id="file-input-${uniqueId}" multiple style="display: none;" />
+							<label for="file-input-${uniqueId}" style="
+								display: inline-block;
+								padding: 6px 12px;
+								cursor: pointer;
+								background-color: #007bff;
+								color: white;
+								border-radius: 4px;
+								font-size: 14px;
+							">
+								Add
+							</label>
 							<div id="preview-container-${uniqueId}" style="margin-top: 10px;">
 								<!-- Image previews will be inserted here -->
 							</div>`
-						}
-					],
-					primary_action_label: 'Complete',
-					primary_action: function () {
-						frappe.dom.freeze('Uploading...');
-						var fileInputs = document.getElementById(`file-input-${uniqueId}`).files;
-						if (allimages.length > 0) {
-							Array.from(allimages).forEach(file => {
-								handleFileUpload(file, taskId, frappe.session.user, fileslist, function (updatedFilesList) {
-									// Check if all files have been uploaded
-									if (updatedFilesList.length === allimages.length) {
-										uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
-									}
-								});
-							});
-						} else {
-							uploadFilesAndCompleteTask([], taskId, frappe.session.user);
-						}
-		
-						dialog.hide();
 					}
-				});
-		
-				dialog.show();
-				var previewContainer = $(`#preview-container-${uniqueId}`);
-				previewContainer.empty();
-				allimages = [];
-				// Function to handle file uploads
-				function handleFileUpload(file, taskId, user, fileslist, callback) {
-					if (file.type === 'image/heic' || file.type === 'image/heif') {
-						heic2any({
-							blob: file,
-							toType: "image/jpeg"
-						}).then((convertedBlob) => {
-							uploadSingleFile(new File([convertedBlob], file.name + ".jpg"), taskId, user, fileslist, callback);
-						}).catch(error => {
-							if (error.code === 1 && error.message.includes('browser readable')) {
-								uploadSingleFile(file, taskId, user, fileslist, callback);
-							} else {
-								console.error('Error converting HEIC to JPEG:', error);
-							}
+				],
+
+				primary_action_label: 'Complete',
+				primary_action: function () {
+					frappe.dom.freeze('Uploading...');
+					var fileInputs = document.getElementById(`file-input-${uniqueId}`).files;
+					if (allimages.length > 0) {
+						Array.from(allimages).forEach(file => {
+							handleFileUpload(file, taskId, frappe.session.user, fileslist, function (updatedFilesList) {
+								// Check if all files have been uploaded
+								if (updatedFilesList.length === allimages.length) {
+									uploadFilesAndCompleteTask(updatedFilesList, taskId, frappe.session.user);
+								}
+							});
 						});
 					} else {
-						uploadSingleFile(file, taskId, user, fileslist, callback);
-					}
-				}
-		
-				// Function to upload single file
-				function uploadSingleFile(file, taskId, user, fileslist, callback) {
-					let formData = new FormData();
-					formData.append('file', file, file.name);
-					formData.append('task_id', taskId);
-					formData.append('user', user);
-		
-					var xhr = new XMLHttpRequest();
-					xhr.open('POST', '/api/method/upload_file', true);
-					xhr.setRequestHeader('Accept', 'application/json');
-					xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
-		
-					xhr.onload = function () {
-						if (xhr.status === 200) {
-							const response = JSON.parse(xhr.responseText);
-							if (response.message && response.message.file_url) {
-								const filePath = response.message.file_url;
-								fileslist.push(filePath);
-								callback(fileslist);
-							} else {
-								console.error('File upload successful, but no file path returned.');
-							}
-						} else {
-							console.error('Error uploading file:', xhr.statusText);
-						}
-					};
-		
-					xhr.onerror = function () {
-						console.error('Request failed');
-					};
-		
-					xhr.send(formData);
-				}
-		
-				// Handle the file input change and show preview
-				$(document).off('change', `#file-input-${uniqueId}`).on('change', `#file-input-${uniqueId}`, function (e) {
-					var files = e.target.files;
-					allimages.push(...files);
-					var previewContainer = $(`#preview-container-${uniqueId}`);
-		
-					// Clear the preview container before appending new images
-					previewContainer.empty();
-		
-					allimages.forEach((file, index) => {
-						var reader = new FileReader();
-						reader.onload = function (e) {
-							var fileType = file.type;
-							var element;
-							
-							if (fileType.startsWith('image/')) {
-								// Image preview
-								element = $('<img>').attr('src', e.target.result)
-									.css({
-										width: '100px',
-										height: '100px',
-										margin: '5px',
-										border: '1px solid #ccc'
-									});
-							} else if (fileType.startsWith('video/')) {
-								// Video thumbnail preview
-								element = $('<video>').attr('src', e.target.result)
-									.attr('controls', true) // Allows video control like play/pause
-									.css({
-										width: '100px',
-										height: '100px',
-										margin: '5px',
-										border: '1px solid #ccc'
-									});
-							} else if (fileType === 'application/pdf') {
-								// PDF icon for PDF files
-								element = $('<img>').attr('src', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGAA4Wd4bco5Xv33GasXrnDdQT5OFXwa3HUQ&s') // Add path to a PDF icon
-									.css({
-										width: '100px',
-										height: '100px',
-										margin: '5px',
-										border: '1px solid #ccc'
-									});
-							} else {
-								// Generic file icon for other file types
-								element = $('<img>').attr('src', 'https://w7.pngwing.com/pngs/521/255/png-transparent-computer-icons-data-file-document-file-format-others-thumbnail.png') // Add path to a generic file icon
-									.css({
-										width: '100px',
-										height: '100px',
-										margin: '5px',
-										border: '1px solid #ccc'
-									});
-							}
-					
-							// Create the delete button
-							var deleteButton = $('<button>')
-								.text('Delete')
-								.css({
-									display: 'block',
-									margin: '5px auto',
-									cursor: 'pointer',
-									backgroundColor: '#ff4d4d',
-									color: 'white',
-									border: 'none',
-									padding: '5px',
-									borderRadius: '4px'
-								})
-								.on('click', function () {
-									element.remove();
-									deleteButton.remove();
-									allimages.splice(index, 1);
-								});
-							
-							// Append the preview and delete button
-							previewContainer.append(element).append(deleteButton);
-						};
-						reader.readAsDataURL(file);
-					});
-					
-				});
-		
-				
-		
-			} else {
-				frappe.confirm(
-					'Are you sure you want to Complete this Task?',
-					function () {
 						uploadFilesAndCompleteTask([], taskId, frappe.session.user);
 					}
-				);
+
+					dialog.hide();
+				}
+			});
+
+			dialog.show();
+			var previewContainer = $(`#preview-container-${uniqueId}`);
+			previewContainer.empty();
+			allimages = [];
+
+			function handleFileUpload(file, taskId, user, fileslist, callback) {
+				if (file.type === 'image/heic' || file.type === 'image/heif') {
+					// Convert HEIC/HEIF images to JPEG
+					heic2any({
+						blob: file,
+						toType: "image/jpeg"
+					}).then((convertedBlob) => {
+						resizeAndUploadImage(new File([convertedBlob], file.name + ".jpg"), taskId, user, fileslist, callback);
+					}).catch(error => {
+						if (error.code === 1 && error.message.includes('browser readable')) {
+							resizeAndUploadImage(file, taskId, user, fileslist, callback);
+						} else {
+							console.error('Error converting HEIC to JPEG:', error);
+						}
+					});
+				} else if (file.type.startsWith('image/')) {
+					// Handle regular image files
+					resizeAndUploadImage(file, taskId, user, fileslist, callback);
+				} else if (file.type.startsWith('video/')) {
+					// Handle video files
+					compressAndUploadVideo(file, taskId, user, fileslist, callback);
+				} else {
+					uploadSingleFile(file, taskId, user, fileslist, callback);
+				}
 			}
-		});
-		
+
+			// Function to resize and upload images
+			function resizeAndUploadImage(file, taskId, user, fileslist, callback, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+				const reader = new FileReader();
+
+				reader.onload = function (event) {
+					const img = new Image();
+					img.src = event.target.result;
+
+					img.onload = function () {
+						const canvas = document.createElement('canvas');
+						let width = img.width;
+						let height = img.height;
+
+						// Calculate the new dimensions while maintaining the aspect ratio
+						if (width > maxWidth || height > maxHeight) {
+							if (width > height) {
+								height = Math.floor(height * (maxWidth / width));
+								width = maxWidth;
+							} else {
+								width = Math.floor(width * (maxHeight / height));
+								height = maxHeight;
+							}
+						}
+
+						// Resize the image on the canvas
+						canvas.width = width;
+						canvas.height = height;
+						const ctx = canvas.getContext('2d');
+						ctx.drawImage(img, 0, 0, width, height);
+
+						// Convert the canvas image to a Blob (JPEG for better compression)
+						canvas.toBlob(function (blob) {
+							// Proceed with file upload (blob is the resized image)
+							uploadSingleFile(new File([blob], file.name), taskId, user, fileslist, callback);
+						}, 'image/jpeg', quality); // Compress to JPEG with the specified quality
+					};
+				};
+
+				reader.readAsDataURL(file); // Read file as data URL to resize
+			}
+			
+			function compressAndUploadVideo(file, taskId, user, fileslist, callback) {
+
+			}
+			// Function to upload a single file
+			function uploadSingleFile(file, taskId, user, fileslist, callback) {
+				let formData = new FormData();
+				formData.append('file', file, file.name);
+				formData.append('task_id', taskId);
+				formData.append('user', user);
+
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', '/api/method/upload_file', true);
+				xhr.setRequestHeader('Accept', 'application/json');
+				xhr.setRequestHeader('X-Frappe-CSRF-Token', frappe.csrf_token);
+
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						const response = JSON.parse(xhr.responseText);
+						if (response.message && response.message.file_url) {
+							const filePath = response.message.file_url;
+							fileslist.push(filePath);
+							callback(fileslist);
+						} else {
+							console.error('File upload successful, but no file path returned.');
+						}
+					} else {
+						console.error('Error uploading file:', xhr.statusText);
+					}
+				};
+
+				xhr.onerror = function () {
+					console.error('Request failed');
+				};
+
+				xhr.send(formData);
+			}
 
 
+			// Handle the file input change and show preview
+			$(document).off('change', `#file-input-${uniqueId}`).on('change', `#file-input-${uniqueId}`, function (e) {
+				var files = e.target.files;
+
+				allimages.push(...files);
+				var previewContainer = $(`#preview-container-${uniqueId}`);
+
+				// Clear the preview container before appending new images
+				previewContainer.empty();
+
+				allimages.forEach((file, index) => {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						var fileType = file.type;
+						var element;
+
+						if (fileType.startsWith('image/')) {
+							// Image preview
+							element = $('<img>').attr('src', e.target.result)
+								.css({
+									width: '100px',
+									height: '100px',
+									margin: '5px',
+									border: '1px solid #ccc'
+								});
+						} else if (fileType.startsWith('video/')) {
+							// Video thumbnail preview
+							element = $('<video>').attr('src', e.target.result)
+								.attr('controls', true) // Allows video control like play/pause
+								.css({
+									width: '100px',
+									height: '100px',
+									margin: '5px',
+									border: '1px solid #ccc'
+								});
+						} else if (fileType === 'application/pdf') {
+							// PDF icon for PDF files
+							element = $('<img>').attr('src', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGAA4Wd4bco5Xv33GasXrnDdQT5OFXwa3HUQ&s') // Add path to a PDF icon
+								.css({
+									width: '100px',
+									height: '100px',
+									margin: '5px',
+									border: '1px solid #ccc'
+								});
+						} else {
+							// Generic file icon for other file types
+							element = $('<img>').attr('src', 'https://w7.pngwing.com/pngs/521/255/png-transparent-computer-icons-data-file-document-file-format-others-thumbnail.png') // Add path to a generic file icon
+								.css({
+									width: '100px',
+									height: '100px',
+									margin: '5px',
+									border: '1px solid #ccc'
+								});
+						}
+
+						// Create the delete button
+						var deleteButton = $('<button>')
+							.text('Delete')
+							.css({
+								display: 'block',
+								margin: '5px auto',
+								cursor: 'pointer',
+								backgroundColor: '#ff4d4d',
+								color: 'white',
+								border: 'none',
+								padding: '5px',
+								borderRadius: '4px'
+							})
+							.on('click', function () {
+								element.remove();
+								deleteButton.remove();
+								allimages.splice(index, 1);
+							});
+
+						// Append the preview and delete button
+						previewContainer.append(element).append(deleteButton);
+					};
+					reader.readAsDataURL(file);
+				});
+
+			});
+
+
+
+		} else {
+			frappe.confirm(
+				'Are you sure you want to Complete this Task?',
+				function () {
+					uploadFilesAndCompleteTask([], taskId, frappe.session.user);
+				}
+			);
+		}
+	});
+
+
+	function update_shift_data_templage(current_shift_type) {
+
+		frappe.call({
+			method: 'uvtech_hms.hms.page.task_list.task_list.update_shift_value',
+			args: {
+				shift: current_shift_type
+			},
+			callback: function (r) {
+				frappe.dom.unfreeze();
+			}
+		})
+	}
 
 	function assignTasksTable(userId, shift, page) {
 		frappe.call({
