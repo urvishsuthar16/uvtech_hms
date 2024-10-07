@@ -153,21 +153,34 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 				title: 'Upload File and Complete Task',
 				fields: [
 					{
+						fieldname: 'camera_button',
+						fieldtype: 'Button',
+						label: 'Use Camera',
+						click: function() {
+							// Change input field for camera
+							document.getElementById(`file-input-${uniqueId}`).setAttribute("accept", "image/*");
+							document.getElementById(`file-input-${uniqueId}`).setAttribute("capture", "environment");
+							document.getElementById(`file-input-${uniqueId}`).click();
+						}
+					},
+					
+					{
+						fieldname: 'gallery_button',
+						fieldtype: 'Button',
+						label: 'Choose from Gallery',
+						click: function() {
+							// Change input field for gallery
+							document.getElementById(`file-input-${uniqueId}`).setAttribute("accept", "image/*");
+							document.getElementById(`file-input-${uniqueId}`).removeAttribute("capture");
+							document.getElementById(`file-input-${uniqueId}`).click();
+						}
+					},
+				
+					{
 						fieldname: 'image_box',
 						fieldtype: 'HTML',
 						options:
 							`<input type="file" accept="image/*" id="file-input-${uniqueId}" multiple style="display: none;" />
-							<label for="file-input-${uniqueId}" style="
-								display: inline-block;
-								padding: 6px 12px;
-								cursor: pointer;
-								background-color: #007bff;
-								color: white;
-								border-radius: 4px;
-								font-size: 14px;
-							">
-								Add
-							</label>
 							<div id="preview-container-${uniqueId}" style="margin-top: 10px;">
 								<!-- Image previews will be inserted here -->
 							</div>`
