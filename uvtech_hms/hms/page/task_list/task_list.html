@@ -1,80 +1,165 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
-        table {
-            width: 50%;
-            border-collapse: collapse;
-            margin: 20px auto;
+        .task-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
+
+        .task-card {
+            background-color: white;
             border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        th {
-            background-color: #f2f2f2;
+
+        .task-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 0px;
         }
-        .completed-button {
-            background-color: #4CAF50; /* Green background */
-            color: white; /* White text */
+
+        .task-body {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .task-shift,
+        .task-type {
+            font-size: 14px;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .task-complete-button {
+            background-color: #4CAF50;
+            color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 12px;
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 10px;
-            margin: 4px 2px;
+            font-size: 14px;
             cursor: pointer;
-            border-radius: 4px; 
+            border-radius: 4px;
+            margin-left: auto;
         }
-        .completed-button:hover {
-            background-color: #0f9116; 
+
+        .task-complete-button:hover {
+            background-color: #0f9116;
         }
-        .Completed{
-            background-color: rgb(214, 56, 56) !important; 
+
+        .Completed {
+            background-color: rgb(214, 56, 56) !important;
         }
-        .Completed:hover{
-            background-color: rgb(175, 9, 9) !important; 
+
+        .Completed:hover {
+            background-color: rgb(175, 9, 9) !important;
         }
+
         .subject-Completed {
-        text-decoration: line-through !important;
+            text-decoration: line-through !important;
+        }
+
+        .task-footer-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .task-summary {
+            width: 100%;
+            max-width: 1200px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Mobile-specific styles */
+        @media only screen and (max-width: 768px) {
+            .task-card {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .task-header {
+                font-size: 16px;
+                text-align: center;
+            }
+
+            .task-footer-content {
+                justify-content: space-between;
+                width: 100%;
+            }
+            
+            .task-shift,
+            .task-type {
+                margin-right: 0;
+                margin-bottom: 10px;
+                font-size: 12px;
+            }
+
+            .task-complete-button {
+                font-size: 12px;
+                padding: 6px 10px;
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/heic2any"></script>
-
 </head>
+
 <body>
-
-<!-- <h2 style="text-align: center;">Task Table</h2> -->
-
-<table>
-    <thead>
-        <tr>
-            <th>Tasks</th>
-            <th>Shift</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="task-container displayTaskUpdateContainer">
+        <div class="task-summary">
+            <div><strong>All :</strong> {{ total_tasks }}</div>
+            <div><strong>Pending :</strong> {{ total_pending_tasks }}</div>
+            <div><strong>Completed :</strong> {{ total_completed_tasks }}</div>
+        </div>
         {% if data.length %}
         {% for record in data %}
-            <tr>
-                <td class="subject-{{ record.status}}">{{ record.subject }}</td>
-                <td>{{ record.custom_shift }}</td>
-                <td>
-                    <button button id={{ record.name }} class="completed-button {{ record.status}}">Complete</button>
-                </td>
-            </tr>
+        <div class="task-card">
+            <div class="task-header subject-{{ record.status }}">{{ record.subject }}</div>
+
+            <div class="task-footer">
+                <div class="task-footer-content">
+                    <div class="task-shift"><strong>Shift:</strong> {{ record.custom_shift }}</div>
+                    <div class="task-type"><strong>Type:</strong> {{ record.type }}</div>
+                </div>
+                <button id="{{ record.name }}" class="task-complete-button {{ record.status }}">Complete</button>
+                
+            </div>
+        </div>
         {% endfor %}
         {% else %}
-            <tr>
-                <td colspan="2">No tasks found</td>
-            </tr>
+        <p>No tasks found</p>
         {% endif %}
-    </tbody>
-</table>
-</body>
+    </div>
 
+</body>
 
 </html>

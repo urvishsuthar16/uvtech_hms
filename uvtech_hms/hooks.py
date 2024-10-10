@@ -28,7 +28,7 @@ web_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Task" : "public/js/task.js"}
+doctype_js = {"Task" : "/public/js/task.js", "Project" : "public/js/project.js", "User" : "public/js/user.js",}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -128,6 +128,10 @@ doc_events = {
 		"validate": "uvtech_hms.hms.overiders.utilis.task_priority",
 		# "on_cancel": "method",
 		# "on_trash": "method"
+	},
+    "User": {
+		"after_insert": "uvtech_hms.update.create_employee",
+        "before_insert": "uvtech_hms.update.update_user_doc"
 	}
 }
 # "Hms Timesheet" :{
@@ -246,20 +250,26 @@ on_session_creation = 'uvtech_hms.update.navigate_to_spl_attendance'
 
 fixtures = [
 
-	{"dt": "Custom Field", "filters": [
-		[
-			"module", "in", [
+	# {"dt": "Custom Field", "filters": [
+	# 	[
+	# 		"module", "in", [
 				
-                "hms"
+    #             "hms"
+	# 		]
+	# 	]
+	# ]},
+    {"dt": "Role Profile", "filters": [
+		[
+			"name", "in", [
+                'SPL Staff',
+                'SPL Manager'
 			]
 		]
 	]},
-    {"dt": "Shift Type", "filters": [
+    {"dt": "Module Profile", "filters": [
 		[
 			"name", "in", [
-                'Evening',
-                'Morning'
-				
+                'spl'
 			]
 		]
 	]},

@@ -20,7 +20,7 @@ def create_attendance(user, employee_id, shift_type):
 
 		if existing_attendace:
 			if existing_attendace[-1].out_time and shift_type == existing_attendace[-1].shift:
-						frappe.throw(f'Attendance already Exist for today for this shift')
+				frappe.throw(f'Attendance already Exist for today for this shift')
 			else:
 				if existing_attendace[-1].in_time and shift_type == existing_attendace[-1].shift:
 					frappe.db.set_value('Hms Attendance', existing_attendace[-1].name, {
@@ -28,28 +28,44 @@ def create_attendance(user, employee_id, shift_type):
 						'shift': shift_type,
 						'out_time': now()
 					})
-					frappe.msgprint(f"End Time recorded: {now()}");
+					# frappe.msgprint(f"End Time recorded: {now()}")
+					return True
 				elif not existing_attendace[-1].get("out_time") and shift_type != existing_attendace[-1].shift:
 					frappe.throw(f'End other Shift to start this one')
 
 				elif shift_type != existing_attendace[-1].shift:
 					hms_attendance = frappe.get_doc({
 						'doctype': 'Hms Attendance',
+						'employee': employee_id,
 						'status': 'Present',
 						'shift': shift_type,
 						'in_time': now()
 						})
 					hms_attendance.insert(ignore_permissions=True)
-					frappe.msgprint(f"Start Time recorded: {now()}");
+					return True
 		else:
 			hms_attendance = frappe.get_doc({
 			'doctype': 'Hms Attendance',
+			'employee': employee_id,
 			'status': 'Present',
 			'shift': shift_type,
 			'in_time': now()
 			})
 			hms_attendance.insert(ignore_permissions=True)
-
-			frappe.msgprint(f"Start Time recorded: {now()}");
+			return True
 	else:
 		frappe.throw(f"Attendance already Exist for today for this shift")
+
+
+
+@frappe.whitelist()
+def get_running_attendance(employee_id):
+    attendance = frappe.db.get_value('Hms Attendance', {
+			'employee': employee_id,  # Use the correct field name
+			'out_time': None  # Assuming you want to find running (active) attendance
+		}, ['name', 'in_time', 'shift'])
+
+			
+    if attendance:
+        return attendance
+    return None

@@ -2,116 +2,64 @@
 import frappe
 import json
 from datetime import date
-from datetime import datetime
+import datetime
+from frappe.utils import getdate, nowdate
 
+def assign_task(user, shift_type, employee_id, project):
+    # Get today's date
+    todays_date = getdate(nowdate())
 
-@frappe.whitelist()
-def assign_task(user, shift_type, employee_id):
-    task_list = []
+    # Get current weekday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
+    current_weekday = datetime.datetime.today().weekday()
+    # current_weekday = 0
+    # List of project tasks
+    project_task_list = frappe.db.get_all(
+        'Project Tasks',
+        filters={
+            'parent': project,
+            'assign': 1,
+            'shift': shift_type
+        },
+        fields=['task_id', 'subject', 'type', 'priority', 'shift', 'is_attachments_need']
+    )
+    for task in project_task_list:
+        task_sub = task['subject']
+        
+        # Check if the task is a daily task
+        if task['type'] == 'Daily':
+            task_completed_today = frappe.db.exists(
+                'Task',
+                {
+                    'subject': task_sub,
+                    'completed_by': user,
+                    'exp_start_date': todays_date,
+                    'status': 'Completed',
+                    'type': 'Daily'
+                }
+            )
+            print(task_completed_today, task_sub, user, todays_date, 'ra,ss')
+            # If the task is not completed today, create a new task
+            if not task_completed_today:
+                create_task_list(task, user, todays_date, shift_type)
 
-    todays_date = frappe.utils.getdate()
-
-    # Fetch the project template tasks
-    project_task_list = frappe.db.sql("""
-        SELECT t.name, t.subject, t.project, t.type, t.priority, t.custom_priority_no, t.custom_is_attachments_need
-        FROM `tabProject` p 
-        LEFT JOIN `tabProject User` u ON p.name = u.parent
-        LEFT JOIN `tabTask` t ON p.name = t.project
-        WHERE u.email = %(email)s
-        AND t.custom_shift = %(shift)s
-        AND t.is_template = 1
-    """, {"email": user, "shift": shift_type}, as_dict=1)
-    
-    # Fetch tasks that are not completed
-    task_list = frappe.db.sql("""
-        SELECT * FROM `tabTask`
-        WHERE owner = %(owner)s 
-        AND custom_shift = %(shift)s
-        AND exp_start_date = %(date)s
-        AND type = 'Daily'
-        AND status = 'Open'
-    """, {"shift": shift_type, "owner": user, "date": todays_date}, as_dict=1)
-    
-    # Fetch completed tasks
-    task_list_completed = frappe.db.sql("""
-        SELECT * FROM `tabTask`
-        WHERE owner = %(owner)s 
-        AND custom_shift = %(shift)s
-        AND exp_start_date = %(date)s
-        AND type = 'Daily'
-        AND status = 'Completed'
-    """, {"shift": shift_type, "owner": user, "date": todays_date}, as_dict=1)
-
-    # Filter project_task_list to exclude already completed tasks
-    completed_subjects = {task["subject"] for task in task_list_completed}
-
-    if not task_list:
-        for task in project_task_list:
-            # Skip tasks that have already been completed
-            if task["subject"] in completed_subjects:
-                continue
-
-            # Check if the task is a daily task and it's not Monday
-            if task.type == 'Daily' and not "Monday" == todays_date.strftime("%A"):
-                new_task = frappe.get_doc({
-                    'doctype': 'Task',
-                    'subject': task['subject'],
-                    'status': 'Open',
-                    "exp_start_date": todays_date,
-                    "exp_end_date": todays_date,
-                    "custom_shift": shift_type,
-                    "type": task['type'],
-                    "priority": task["priority"],
-                    "project": task['project'],
-                    "custom_is_attachments_need": task['custom_is_attachments_need']
-                })
-                new_task.insert(ignore_permissions=True)
-
-                task_list.append(new_task)
-
-                todo = frappe.get_doc({
-                    'doctype': 'ToDo',
-                    'description': f'Please check the new task: {new_task.subject}',
-                    'reference_type': 'Task',
-                    'reference_name': new_task.name,
-                    "allocated_to": user,
-                    "date": todays_date
-                })
-                todo.insert(ignore_permissions=True)
-
-            # For Monday tasks
-            elif "Monday" == todays_date.strftime("%A"):
-                new_task = frappe.get_doc({
-                    'doctype': 'Task',
-                    'subject': task['subject'],
-                    'status': 'Open',
-                    "exp_start_date": todays_date,
-                    "exp_end_date": todays_date,
-                    "custom_shift": shift_type,
-                    "type": task['type'],
-                    "priority": task["priority"],
-                    "project": task['project'],
-                    "custom_is_attachments_need":task['custom_is_attachments_need']
-                })
-                new_task.insert(ignore_permissions=True)
-
-                task_list.append(new_task)
-
-                todo = frappe.get_doc({
-                    'doctype': 'ToDo',
-                    'description': f'Please check the new task: {new_task.subject}',
-                    'reference_type': 'Task',
-                    'reference_name': new_task.name,
-                    "allocated_to": user,
-                    "date": todays_date
-                })
-                todo.insert(ignore_permissions=True)
-
-    return task_list
+        # Check for weekly tasks if today is Monday (current_weekday == 0)
+        if current_weekday == 0 and task['type'] == 'Weekly':
+            task_completed_this_week = frappe.db.exists(
+                'Task',
+                {
+                    'subject': task_sub,
+                    'completed_by': user,
+                    'exp_start_date': todays_date,
+                    'status': 'Completed',
+                    'type': 'Weekly'
+                }
+            )
+            # If the task is not completed this week, create a new task
+            if not task_completed_this_week:
+                create_task_list(task, user, todays_date, shift_type)
 
 
 def create_task_list(task,user,todays_date,shift_type):
-
     new_task = frappe.get_doc({
         'doctype': 'Task',
         'subject': task['subject'],
@@ -119,10 +67,10 @@ def create_task_list(task,user,todays_date,shift_type):
         "exp_start_date": todays_date,
         "exp_end_date": todays_date,
         "custom_shift":shift_type,
-        "type":"Daily",
+        'type': task['type'],
         "priority":task["priority"],
-        "project":task['project'],
-        "custom_is_attachments_need": task['custom_is_attachments_need']
+        "custom_is_attachments_need": task['is_attachments_need'],
+        "is_template": 0
     })
     new_task.insert(ignore_permissions=True)
 
@@ -170,7 +118,7 @@ def set_total_time(totalHours, totalMinutes):
 
 
 @frappe.whitelist(allow_guest=True)
-def delete_existing_tasks(employee_id, shift_type):
+def delete_existing_tasks(employee_id, shift_type, project):
     
     todays_date=frappe.utils.getdate()
     user = frappe.session.user
@@ -178,12 +126,11 @@ def delete_existing_tasks(employee_id, shift_type):
         SELECT * FROM `tabTask`
         WHERE owner = %(owner)s 
         AND exp_start_date = %(date)s
-        AND type = 'Daily'
         AND status = 'Open' """,({"owner":user,"date":todays_date}),as_dict=1)
     if task_list :
         for task in task_list:
             frappe.delete_doc("Task", task["name"], force=1)
-    assign_task(user, shift_type, employee_id)
+    assign_task(user, shift_type, employee_id, project)
 
 @frappe.whitelist()
 def get_all_task_list(user,shift_type,employee_id):
@@ -193,7 +140,7 @@ def get_all_task_list(user,shift_type,employee_id):
         SELECT * FROM `tabTask`
         WHERE owner = %(owner)s 
         AND exp_start_date = %(date)s
-        AND type = 'Daily' 
+        AND type IN ('Daily', 'Weekly')
         AND status = 'Completed' """,({"owner":user,"date":todays_date}),as_dict=1)
     open_task_list = frappe.db.sql("""
         SELECT * FROM `tabTask`
@@ -201,8 +148,20 @@ def get_all_task_list(user,shift_type,employee_id):
         AND exp_start_date = %(date)s
         AND type IN ('Daily', 'Weekly')
         AND status = 'Open' """,({"owner":user,"date":todays_date}),as_dict=1)
-    all_task_list = today_completed_tasks + open_task_list
-    return all_task_list
+    
+    all_task_list =  open_task_list + today_completed_tasks
+
+    total_tasks = len(all_task_list)
+    total_completed_tasks = len(today_completed_tasks)
+    total_pending_tasks = len(open_task_list)
+
+    # Return the tasks and counts
+    return {
+        "tasks": all_task_list,
+        "total_tasks": total_tasks,
+        "total_completed_tasks": total_completed_tasks,
+        "total_pending_tasks": total_pending_tasks
+    }
 
 
 

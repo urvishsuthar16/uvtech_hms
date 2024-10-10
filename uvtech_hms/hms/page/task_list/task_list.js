@@ -60,9 +60,14 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	function generate_the_list() {
 
 		let current_shift_type = shift_filter_field.get_value();
+		let current_location_filed = location_filed.get_value();
 
 		if (!current_shift_type) {
 			frappe.msgprint(__('Please select a valid Shift Type before assigning tasks.'));
+			return; // Exit the function if no shift type is selected
+		}
+		if (!current_location_filed) {
+			frappe.msgprint(__('You are not assigned to any Project'));
 			return; // Exit the function if no shift type is selected
 		}
 		// Show confirmation popup
@@ -78,7 +83,8 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						method: 'uvtech_hms.hms.page.task_list.task_list.delete_existing_tasks',
 						args: {
 							employee_id: userId,
-							shift_type: current_shift_type
+							shift_type: current_shift_type,
+							project: current_location_filed
 						},
 						callback: function (response) {
 							shift_filter_field.set_value(current_shift_type);
@@ -101,6 +107,10 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', 'default_shift', 'employee_name'])
 		.then(response => {
+			if (!response.message.name){
+				console.log(response.message.name)
+				 return ''
+			}
 			userId = response.message.name;
 			let defaultShift = response.message.default_shift;
 
@@ -140,7 +150,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 
 
-	$(page.body).on('click', '.completed-button', async function (e) {
+	$(page.body).on('click', '.task-complete-button', async function (e) {
 		var taskId = e.target.id;
 		let custom_is_attachments_need = (await frappe.db.get_value("Task", taskId, "custom_is_attachments_need")).message.custom_is_attachments_need;
 		var allimages = [];
@@ -156,26 +166,26 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						fieldname: 'camera_button',
 						fieldtype: 'Button',
 						label: 'Use Camera',
-						click: function() {
+						click: function () {
 							// Change input field for camera
 							document.getElementById(`file-input-${uniqueId}`).setAttribute("accept", "image/*");
 							document.getElementById(`file-input-${uniqueId}`).setAttribute("capture", "environment");
 							document.getElementById(`file-input-${uniqueId}`).click();
 						}
 					},
-					
+
 					{
 						fieldname: 'gallery_button',
 						fieldtype: 'Button',
 						label: 'Choose from Gallery',
-						click: function() {
+						click: function () {
 							// Change input field for gallery
 							document.getElementById(`file-input-${uniqueId}`).setAttribute("accept", "image/*");
 							document.getElementById(`file-input-${uniqueId}`).removeAttribute("capture");
 							document.getElementById(`file-input-${uniqueId}`).click();
 						}
 					},
-				
+
 					{
 						fieldname: 'image_box',
 						fieldtype: 'HTML',
@@ -279,7 +289,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 				reader.readAsDataURL(file); // Read file as data URL to resize
 			}
-			
+
 			function compressAndUploadVideo(file, taskId, user, fileslist, callback) {
 
 			}
@@ -422,6 +432,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			},
 			callback: function (r) {
 				frappe.dom.unfreeze();
+
 			}
 		})
 	}
@@ -435,29 +446,31 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 				shift_type: shift
 			},
 			callback: function (response) {
-				let all_task_list = response.message
+				let all_task_list = response.message.tasks;
 
+				// Sort the tasks based on custom priority number
 				all_task_list.sort((a, b) => {
+					if (a.status === 'Completed' && b.status !== 'Completed') return 1;
+    				if (a.status !== 'Completed' && b.status === 'Completed') return -1;
 					if (a.custom_priority_no < b.custom_priority_no) return -1;
 					if (a.custom_priority_no > b.custom_priority_no) return 1;
 					return 0;
 				});
 
-				// Render tasks to the page
-				$(frappe.render_template('task_list', { data: all_task_list })).appendTo(page.body);
 
-				// Handle table display logic
-				const section = document.getElementsByClassName('layout-main-section');
-				const lastTable = section[0].querySelector('table:last-child');
-				const tables = section[0].getElementsByTagName('table');
-				for (let j = 0; j < tables.length; j++) {
-					tables[j].style.display = 'none';
-				}
-				lastTable.style.display = 'table';
+				$('.displayTaskUpdateContainer').html(''); // Clear existing content
+
+				// Render the new task list
+				$(frappe.render_template('task_list', {
+					data: all_task_list,
+					total_tasks: response.message.total_tasks,
+					total_completed_tasks: response.message.total_completed_tasks,
+					total_pending_tasks: response.message.total_pending_tasks
+				})).appendTo(page.body);
 			}
-		})
-
+		});
 	}
+
 
 	function uploadFilesAndCompleteTask(files, taskId, user) {
 		frappe.call({
@@ -476,4 +489,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			}
 		});
 	}
+
+
+
 }

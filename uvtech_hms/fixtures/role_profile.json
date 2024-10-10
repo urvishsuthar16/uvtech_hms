@@ -1,0 +1,38 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2024-10-09 16:59:23.786648",
+  "name": "SPL Manager",
+  "role_profile": "SPL Manager",
+  "roles": [
+   {
+    "parent": "SPL Manager",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "SPL Manager"
+   },
+   {
+    "parent": "SPL Manager",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "Employee Self Service"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2024-10-09 22:51:59.919552",
+  "name": "SPL Staff",
+  "role_profile": "SPL Staff",
+  "roles": [
+   {
+    "parent": "SPL Staff",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "SPL Staff"
+   }
+  ]
+ }
+]

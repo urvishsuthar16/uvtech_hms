@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-10-07 18:07:58.673291",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "task_id",
+  "subject",
+  "type",
+  "priority",
+  "shift",
+  "assign",
+  "is_attachments_need"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "task_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Task ID",
+   "options": "Task"
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Subject"
+  },
+  {
+   "columns": 1,
+   "fieldname": "type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Task Type"
+  },
+  {
+   "columns": 1,
+   "fieldname": "priority",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "priority"
+  },
+  {
+   "columns": 1,
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Shift",
+   "options": "Shift Type"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "assign",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Assign"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_attachments_need",
+   "fieldtype": "Check",
+   "label": "Is Attachments Need"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-10-08 14:57:03.530553",
+ "modified_by": "Administrator",
+ "module": "hms",
+ "name": "Project Tasks",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
