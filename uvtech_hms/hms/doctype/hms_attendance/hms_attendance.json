@@ -250,7 +250,7 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-08-22 18:43:26.980324",
+ "modified": "2024-10-09 19:06:26.834487",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
@@ -290,6 +290,7 @@
    "read": 1,
    "report": 1,
    "role": "SPL Staff",
+   "select": 1,
    "share": 1,
    "write": 1
   }
