@@ -45,6 +45,14 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 		reqd: 1
 	});
 
+	let select_date_time = page.add_field({
+		label: 'Select Time',
+		fieldtype: 'Datetime',
+		fieldname: 'select_date',
+		default: "Now",
+		reqd: 1
+	});
+
 	// Fetch employee data and existing attendance status on page load
 	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', "default_shift", "employee_name"])
 		.then(response => {
@@ -65,6 +73,7 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 	button_container.find('.btn-start').on('click', async function () {
 		let employeeName = employee_field.get_value();
 		let shiftType = shift_filter_field.get_value();
+		let select_date = select_date_time.get_value();
 
 		if (!employeeName) {
 			frappe.msgprint(__('Please select a valid Employee.'));
@@ -75,15 +84,17 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 			frappe.msgprint(__('Please select a valid Shift Type.'));
 			return;
 		}
-
+		if (!select_date) {
+			frappe.msgprint(__('Please select a Date Time.'));
+			return;
+		}
 		// Call attendance creation function
 		try {
-			let result = await create_attendance(frappe.session.user, employeeName, shiftType, 'start');
-			console.log(result, 'Attendance started');
+			let result = await create_attendance(frappe.session.user, employeeName, shiftType, select_date, 'start');
 
 			// CSS Animation Example: Change background color for success
 			$(this).css("background-color", "lightgreen").animate({ backgroundColor: "#28a745" }, 1000);
-
+			shift_filter_field.$input.attr('readonly', true);
 			status = 'Running...';
 			update_status('green', status);
 
@@ -99,14 +110,15 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 	// Stop button event with animation and status update
 	button_container.find('.btn-stop').on('click', async function () {
 		let employeeName = employee_field.get_value();
-	
+		let select_date = select_date_time.get_value();
+
 		// Confirmation prompt before stopping the time
 		frappe.confirm(
 			'Are you sure you want to complete the shift?',
 			async () => {
 				try {
-					let result = await create_attendance(frappe.session.user, employeeName, shift_filter_field.get_value(), 'stop');
-	
+					let result = await create_attendance(frappe.session.user, employeeName, shift_filter_field.get_value(), select_date, 'stop');
+					shift_filter_field.$input.attr('readonly', false);
 					// CSS Animation Example: Change background color for success
 					$(this).css("background-color", "lightcoral").animate({ backgroundColor: "#dc3545" }, 1000);
 	
@@ -141,10 +153,11 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 			callback: function (response) {
 				if (response.message) {
 					let attendance = response.message;
+					shift_filter_field.$input.attr('readonly', true);
 
 					// Set the shift and show stop button
 					shift_filter_field.set_value(attendance[2]);
-
+					
 					status = 'Running...';
 					update_status('green', status);
 
@@ -158,7 +171,7 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 
 
 // Function to create attendance and pass action (start/stop)
-function create_attendance(userId, employee_id, shift_type, action) {
+function create_attendance(userId, employee_id, shift_type, select_date_time, action) {
 	return new Promise((resolve, reject) => {
 		frappe.call({
 			method: 'uvtech_hms.hms.page.hms_checkin.hms_checkin.create_attendance',
@@ -166,11 +179,11 @@ function create_attendance(userId, employee_id, shift_type, action) {
 				user: userId,
 				employee_id: employee_id,
 				shift_type: shift_type,
-				action: action
+				action: action,
+				select_date_time: select_date_time
 			},
 			callback: function (response) {
 				if (response.message) {
-					console.log('Attendance response:', response);
 					resolve(response.message);
 				} else {
 					reject('No response from server.');

@@ -8,11 +8,11 @@
 
     {% if is_spl_manager %}
     
-    {% if is_spl_staff %}
-    <div class="right-align">
-        <a href="/files/SPL.pdf" class="download-button">Download PDF</a>
-    </div>
-    {% else %}
+        {% if is_spl_staff %}
+            <div class="right-align">
+                <a href="/files/SPL.pdf" class="download-button">Download PDF</a>
+            </div>
+        {% else %}
     <div class="right-align">
         <a href="/files/SPL Manager.pdf" class="download-button">Download PDF</a>
     </div>
@@ -110,6 +110,21 @@
             <iframe src="/files/Screencast from 2024-09-28 14-56-32.webm" frameborder="0" allowfullscreen></iframe>
         </div>
     </section>
+    <section>
+        <h2>Change User Password</h2>
+        <h5>Change Password</h5>
+        <p>1. <strong>Go to User Doctype List:</strong> Navigate to the User Doctype list by searching for "User" in the
+            search bar or through the User section in the setup menu.</p>
+        <h5>Select User</h5>
+        <p>2. <strong>Select User:</strong> In the User list, find and click on the specific user for whom you want to change the password.</p>
+        <h5>Open the Settings Tab</h5>
+        <p>3. <strong>Go to the Settings Tab:</strong> Once you're inside the user's profile, click on the "Settings" tab to open it.</p>
+        <h5>Change Password</h5>
+        <p>4. <strong>Enter New Password:</strong> In the "Change Password" section, input the new password. You can click the
+            eye icon to view the entered password for accuracy.</p>
+            <img src="/files/Screenshot from 2024-10-16 10-04-06.png" alt="Change Password" />
+    </section>
+    
     {% endif %}
     {% if is_spl_staff %}
     {% if not is_spl_manager %}

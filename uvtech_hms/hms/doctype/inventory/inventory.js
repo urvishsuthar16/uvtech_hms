@@ -6,13 +6,14 @@ frappe.ui.form.on("Inventory", {
             frappe.db.get_list('Item', {
                 filters: {
                     'disabled': 0
-                }
+                },
+                fields: ['name', 'custom_qty_required']
             }).then(records => {
                 for (let item of records) {
-                    
+
                     let row = frm.add_child('inventory_items', {
                         item_code: item.name,
-                        qty: 0
+                        require_qty: item.custom_qty_required
                     });
 
                     frm.refresh_field('inventory_items');
@@ -23,7 +24,7 @@ frappe.ui.form.on("Inventory", {
 
     },
     refresh(frm) {
-        
+
         if (frappe.user_roles.includes("SPL Manager") && !frm.is_new()) {
 
             frm.add_custom_button(__('Send Mail'), function () {
@@ -31,7 +32,7 @@ frappe.ui.form.on("Inventory", {
                     method: "uvtech_hms.hms.doctype.inventory.inventory.send_mail",
                     args: {
                         docname: frm.doc.name,
-                        
+
                     },
                     callback: function (response) {
                         if (!response.exc) {
@@ -75,13 +76,13 @@ frappe.ui.form.on("Inventory", {
                     let custom_price = item.price || 0;
 
                     return (!item_code_filter || item_code.toLowerCase().includes(item_code_filter.toLowerCase())) &&
-                            (!qty_filter || qty == parseFloat(qty_filter)) &&
-                            (!supplier_filter || supplier.toLowerCase().includes(supplier_filter.toLowerCase())) &&
-                            (!custom_price_filter || custom_price == parseFloat(custom_price_filter));
+                        (!qty_filter || qty == parseFloat(qty_filter)) &&
+                        (!supplier_filter || supplier.toLowerCase().includes(supplier_filter.toLowerCase())) &&
+                        (!custom_price_filter || custom_price == parseFloat(custom_price_filter));
 
                 });
 
-                
+
                 copyDataAndShowMessage(filtered_items);
             });
 
@@ -90,8 +91,7 @@ frappe.ui.form.on("Inventory", {
                     method: 'uvtech_hms.update.get_latest_support_data',
                     callback: function (r) {
                         if (r.message) {
-                            // Assume r.message is an array where first item is doc_name and second is items
-                            get_price_list(r.message[0], r.message[1], frm);
+                            get_price_list(r.message, frm);
                         } else {
                             frappe.msgprint(__('No latest HMS Price List found.'));
                         }
@@ -103,28 +103,19 @@ frappe.ui.form.on("Inventory", {
 });
 
 
-function get_price_list(doc_name, items, frm) {
+function get_price_list(items, frm) {
 
-    frm.set_value('hms_price_list', doc_name)
-    // Loop through the existing and newly added records in the child table
     frm.doc.inventory_items.forEach(function (item) {
-        if (item.qty > 0) {
-            var matchingItems = items.filter(function (record) {
-                return record.item_code === item.item_code;
-            });
-
-            if (matchingItems.length > 0) {
-                var lowestPriceItem = matchingItems.reduce(function (prev, curr) {
-                    return (prev.price < curr.price) ? prev : curr;
-                }, { price: Infinity });
-
-                if (lowestPriceItem.price !== Infinity) {
-                    frappe.model.set_value(item.doctype, item.name, 'price', lowestPriceItem.price);
-                    frappe.model.set_value(item.doctype, item.name, 'supplier', lowestPriceItem.supplier);
-                }
+        // Check if the current item name exists in the 'items' price list data
+        if (items[item.item_code]) {
+            // If there's a match, set the supplier and price based on the fetched data
+            const price_data = items[item.item_code];
+            console.log(item)
+            if (item.require_qty > 0) {
+                frappe.model.set_value(item.doctype, item.name, 'supplier', price_data.supplier);
+                frappe.model.set_value(item.doctype, item.name, 'price', price_data.price);
             }
         }
-
     });
 
     frm.refresh_field('inventory_items');
@@ -133,45 +124,40 @@ function get_price_list(doc_name, items, frm) {
 
 
 
+
 frappe.ui.form.on('Stock Inventory items', {
 
     supplier: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn];
-        if (row.qty) {
-            frappe.call({
-                method: 'uvtech_hms.update.get_supplier_price',
-                args: {
-                    supplier: row.supplier,
-                    item_code: row.item_code
-                },
-                callback: function (r) {
-                    if (r.message) {
-                        frappe.model.set_value(cdt, cdn, 'price', r.message.price);
-                    }
+        frappe.call({
+            method: 'uvtech_hms.update.get_supplier_price',
+            args: {
+                supplier: row.supplier,
+                item_code: row.item_code
+            },
+            callback: function (r) {
+                
+                let qty = row.require_qty - row.current_qty
+                if (r.message) {
+                    frappe.model.set_value(cdt, cdn, 'price', r.message.price);
+                    frappe.model.set_value(cdt, cdn, 'qty', qty);
+
                 }
-            });
-        }
+            }
+        });
 
     },
-    qty: function (frm, cdt, cdn) {
+ 
+    current_qty : function(frm, cdt, cdn){
         let row = locals[cdt][cdn];
-        if (row.supplier) {
-            frappe.call({
-                method: 'uvtech_hms.update.get_supplier_price',
-                args: {
-                    supplier: row.supplier,
-                    item_code: row.item_code
-                },
-                callback: function (r) {
-                    if (r.message) {
+        console.log(row)
 
-                        frappe.model.set_value(cdt, cdn, 'price', r.message.price);
-
-                    }
-                }
-            });
+        if (0 > row.current_qty ){
+            frappe.msgprint("You can't enter negative values.");
+            row.current_qty = 0
         }
     }
+
 })
 
 
@@ -227,7 +213,7 @@ function make_supplier_input_field_to_select_filed(frm) {
     supplier_input.parentNode.replaceChild(supplier_select, supplier_input);
 
     // Add event listener to handle changes
-    supplier_select.addEventListener('change', function() {
+    supplier_select.addEventListener('change', function () {
         let selectedValue = this.value;
         // Update the hidden input with the selected value
         supplier_input.value = selectedValue;
@@ -238,7 +224,7 @@ function make_supplier_input_field_to_select_filed(frm) {
 }
 
 function copyDataAndShowMessage(data) {
-  
+
     let dataString = '';
     data.forEach(item => {
         dataString += `Item code: ${item.item_code}\nQty: ${item.qty}\nPrice: ${item.price}\n\n`;

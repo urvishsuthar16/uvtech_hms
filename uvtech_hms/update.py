@@ -3,39 +3,64 @@ from frappe.utils import getdate, nowdate
 
 @frappe.whitelist(allow_guest=True)
 def get_latest_support_data():
-    latest_record = frappe.db.get_list('HMS Price List', 
-        order_by='date desc',  
-        limit=1  
+    # Fetch all HMS Price List records and their items
+    all_price_lists = frappe.db.get_list(
+        'HMS Price List',
+        fields=['name', 'supplier', 'date'],
+        order_by='date desc', 
+        limit_page_length=0  
     )
-    
-    if latest_record:
-        latest_price_list = frappe.get_doc('HMS Price List', latest_record[0])
-        return latest_price_list.name, latest_price_list.items
 
-    else:
-        return None
-    
+    lowest_prices = {}
+
+    for record in all_price_lists:
+        # Fetch the full price list document
+        doc = frappe.get_doc('HMS Price List', record['name'])
+
+        for item in doc.items:
+            item_code = item.item_code
+            item_price = item.price
+            supplier = doc.supplier
+            
+            if item_code in lowest_prices:
+                # If the new price is lower, update the entry
+                if item_price < lowest_prices[item_code]['price']:
+                    lowest_prices[item_code] = {
+                        'supplier': supplier,
+                        'price': item_price
+                    }
+            else:
+                # If the item is not in the dictionary, add it
+                lowest_prices[item_code] = {
+                    'supplier': supplier,
+                    'price': item_price
+                }
+
+    return lowest_prices
+
+
+
+
 
 @frappe.whitelist(allow_guest=True)
 def get_supplier_price(supplier, item_code):
-    latest_record = frappe.db.get_list('HMS Price List', 
-        fields=['name'],  # Only need 'name' to fetch the document
-        order_by='date desc',
-        limit=1
-    )
-    
-    if latest_record:
-        latest_price_list = frappe.get_doc('HMS Price List', latest_record[0].name)
-        items_list = latest_price_list.items
-        filtered_items = [item for item in items_list if item.supplier == supplier and item.item_code == item_code]
-        
-        if filtered_items:
-            lowest_price_item = min(filtered_items, key=lambda x: x.price)
-            return lowest_price_item
-        else:
-            return None
-    else:
-        return None
+    # Fetch the HMS Price List document for the given supplier
+    price_list = frappe.get_all('HMS Price List', filters={'supplier': supplier}, fields=['name'])
+
+    if not price_list:
+        frappe.throw(f"No price list found for supplier: {supplier}")
+
+    price_list_doc = frappe.get_doc('HMS Price List', price_list[0].name)
+
+    for item in price_list_doc.items:
+        if item.item_code == item_code:
+            return {
+                'item_code': item.item_code,
+                'price': item.price
+            }
+
+    frappe.throw(f"Item {item_code} not found in the supplier's price list")
+
 
 
 
@@ -111,6 +136,11 @@ def check_is_user_assigned(user, project_name):
 @frappe.whitelist()
 def create_employee(self, method):
     todays_date = getdate(nowdate())
+    latest_holiday_list = 'SPL'
+    # Get the latest Holiday List by creation date
+    holiday_lists = frappe.get_all("Holiday List", fields=["name"], order_by="creation desc", limit=1)
+    if holiday_lists:
+        latest_holiday_list = holiday_lists[0].name
 
     employee_doc = frappe.get_doc({
         "doctype": "Employee",
@@ -120,7 +150,11 @@ def create_employee(self, method):
         "gender": self.gender,
         "date_of_birth": self.custom_date_of_birth,
         "user_id": self.name,
-        "status": "Active"  # You can modify this based on your use case
+        "status": "Active",
+        "salary_currency": 'AUD',
+        "custom_standard_hours": 8,
+        "salary_mode": 'Cash',
+        "holiday_list": latest_holiday_list 
     })
     
     employee_doc.insert()

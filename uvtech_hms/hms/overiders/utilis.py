@@ -33,7 +33,7 @@ def send_email_for_task(shift_type):
     
     # Fetch pending tasks for the specified shift type and end date
     pending_task = frappe.db.sql("""
-        SELECT name, subject, project, exp_end_date, owner
+        SELECT name, subject, exp_end_date, owner
         FROM `tabTask` 
         WHERE custom_shift = %(shift)s
         AND exp_end_date = %(today)s
@@ -52,17 +52,22 @@ def send_email_for_task(shift_type):
     
     # Send email to each user with their grouped tasks
     for owner, tasks in user_task_group.items():
+        project_name = get_user_assigned_project(owner)
+
         # Prepare the content for the email
-        content = "<table class='table table-bordered'>"
-        content += "<thead><tr><th>Task ID</th><th>Date</th><th>Subject</th><th>Project</th></tr></thead><tbody>"
-        
+        content = f"<p>From the project <strong>{project_name}</strong>, you have the following pending tasks:</p>"
+
+        content += "<table class='table table-bordered'>"
+        content += "<thead><tr><th>Task ID</th><th>Date</th><th>Subject</th></tr></thead><tbody>"
+
         # Iterate through the user's tasks and add rows to the table
         for task in tasks:
-            content += f"<tr><td>{task['name']}</td><td>{task['exp_end_date']}</td><td>{task['subject']}</td><td>{task['project']}</td></tr>"
-        
+            content += f"<tr><td>{task['name']}</td><td>{task['exp_end_date']}</td><td>{task['subject']}</td></tr>"
+
         # Close the table tags
         content += "</tbody></table>"
-        
+
+        print(content, project_name, 'project_name')
         # Send the email to the owner
         frappe.sendmail(
             recipients=owner,
@@ -82,3 +87,21 @@ def task_priority(doc,method=None):
         doc.custom_priority_no = 2
     elif doc.priority == 'Low':
         doc.custom_priority_no = 3
+
+
+def get_user_assigned_project(user):
+    
+    assigned_project = frappe.db.sql("""
+        SELECT parent 
+        FROM `tabProject User` 
+        WHERE user = %s AND custom_assiged = 1
+    """, user, as_dict=True)
+
+    if assigned_project:
+        # Fetch project details based on parent (which refers to the Project doctype)
+        project_name = assigned_project[0].parent
+        project = frappe.get_doc("Project", project_name)
+        return project.project_name
+            
+    else:
+        return ''

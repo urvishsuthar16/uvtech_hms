@@ -98,6 +98,9 @@ frappe.ui.form.on('Project', {
     },
     custom_update: function (frm) {
         update_the_task_list(frm)
+    }, 
+    custom_assign_all_tasks: function (frm) {
+        update_assign_all_tasks(frm)
     }
 });
 
@@ -205,6 +208,42 @@ function update_the_task_list(frm) {
 
                 frm.refresh_field('custom_assign_task');
                 frappe.msgprint('Successfully New Tasks are Updated')
+            }
+        }
+    });
+}
+
+
+function update_assign_all_tasks(frm){
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'Task',
+            filters: {
+                is_template: 1
+            },
+            fields: ['name', 'subject', 'type', 'priority', 'custom_shift', 'custom_is_attachments_need'],
+            limit_page_length: 100  // Set the limit to a large number
+        },
+        callback: function (response) {
+            if (response.message) {
+                let template_tasks = response.message;
+                // Clear the existing rows in the Custom Assign Task child table
+                frm.clear_table('custom_assign_task');
+
+                template_tasks.forEach(task => {
+                    let child = frm.add_child('custom_assign_task');
+                    child.task_id = task.name;
+                    child.subject = task.subject;
+                    child.type = task.type;
+                    child.priority = task.priority;
+                    child.shift = task.custom_shift;
+                    child.is_attachments_need = task.custom_is_attachments_need;
+                    child.assign = 1;
+                });
+
+                // Refresh the field to display the added tasks
+                frm.refresh_field('custom_assign_task');
             }
         }
     });

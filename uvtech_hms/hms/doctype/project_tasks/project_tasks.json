@@ -11,12 +11,12 @@
   "type",
   "priority",
   "shift",
-  "assign",
-  "is_attachments_need"
+  "is_attachments_need",
+  "assign"
  ],
  "fields": [
   {
-   "columns": 1,
+   "columns": 2,
    "fieldname": "task_id",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -24,6 +24,7 @@
    "options": "Task"
   },
   {
+   "columns": 3,
    "fieldname": "subject",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -61,16 +62,18 @@
    "label": "Assign"
   },
   {
+   "columns": 1,
    "default": "0",
    "fieldname": "is_attachments_need",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": "Is Attachments Need"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-08 14:57:03.530553",
+ "modified": "2024-10-15 14:56:58.055852",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Project Tasks",

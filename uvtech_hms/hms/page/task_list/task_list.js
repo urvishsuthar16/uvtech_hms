@@ -211,7 +211,9 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 							});
 						});
 					} else {
-						uploadFilesAndCompleteTask([], taskId, frappe.session.user);
+						frappe.msgprint(__('Please add at least one image.'));
+						frappe.dom.unfreeze();
+						return
 					}
 
 					dialog.hide();
