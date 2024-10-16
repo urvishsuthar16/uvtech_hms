@@ -4,10 +4,10 @@ from datetime import date , datetime
 from frappe.utils import today, now
 
 @frappe.whitelist()
-def create_attendance(user, employee_id, shift_type):  
+def create_attendance(user, employee_id, shift_type, select_date_time):  
 
 	existing_attendace = frappe.db.get_list('Hms Attendance',
-            filters= {'emp_user':user,'attendance_date':now()},
+            filters= {'emp_user':user,'attendance_date':select_date_time},
             fields=['in_time','name','working_hours','out_time','shift'],
             order_by='in_time asc',
         )
@@ -26,9 +26,9 @@ def create_attendance(user, employee_id, shift_type):
 					frappe.db.set_value('Hms Attendance', existing_attendace[-1].name, {
 						'status': 'Present',
 						'shift': shift_type,
-						'out_time': now()
+						'out_time': select_date_time
 					})
-					# frappe.msgprint(f"End Time recorded: {now()}")
+
 					return True
 				elif not existing_attendace[-1].get("out_time") and shift_type != existing_attendace[-1].shift:
 					frappe.throw(f'End other Shift to start this one')
@@ -39,7 +39,7 @@ def create_attendance(user, employee_id, shift_type):
 						'employee': employee_id,
 						'status': 'Present',
 						'shift': shift_type,
-						'in_time': now()
+						'in_time': select_date_time
 						})
 					hms_attendance.insert(ignore_permissions=True)
 					return True
@@ -49,7 +49,7 @@ def create_attendance(user, employee_id, shift_type):
 			'employee': employee_id,
 			'status': 'Present',
 			'shift': shift_type,
-			'in_time': now()
+			'in_time': select_date_time
 			})
 			hms_attendance.insert(ignore_permissions=True)
 			return True

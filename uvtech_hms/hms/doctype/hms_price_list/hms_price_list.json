@@ -7,6 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "date",
+  "column_break_orjx",
+  "supplier",
+  "section_break_vzjn",
   "items"
  ],
  "fields": [
@@ -22,13 +25,30 @@
    "allow_bulk_edit": 1,
    "fieldname": "items",
    "fieldtype": "Table",
-   "label": "Items",
    "options": "Price List Items"
+  },
+  {
+   "fieldname": "column_break_orjx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_vzjn",
+   "fieldtype": "Section Break",
+   "label": "Items"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-12 16:09:56.420141",
+ "modified": "2024-10-15 18:58:42.297148",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "HMS Price List",

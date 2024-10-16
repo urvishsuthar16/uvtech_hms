@@ -7,7 +7,13 @@ from frappe.core.doctype.communication.email import make
 
 
 class Inventory(Document):
-    pass
+    def before_insert(self):
+        user_name = frappe.get_value('User', frappe.session.user, "full_name")
+        self.user = user_name
+        has_valid_qty = any(item.current_qty and item.current_qty > 0 for item in self.get("inventory_items"))
+        if not has_valid_qty:
+            frappe.throw("At least one inventory item must have a quantity.")
+
 
 @frappe.whitelist()
 def send_mail(docname):
@@ -25,13 +31,13 @@ def send_mail(docname):
     for supplier in supplier_list:
         supplier_records = []
         
-        # Step 3: Filter the rows from inventory_items based on the supplier
         for each_row in items_data:
             if each_row.supplier == supplier:
-                supplier_records.append(each_row)
+                supplier_records.append(each_row.as_dict())
         supplier_email_id =frappe.get_value("Supplier", supplier, "email_id")
-
-        email_format(supplier, supplier_records, supplier_email_id, doc.email_template_text)
+        
+        if supplier_email_id :
+            email_format(supplier, supplier_records, supplier_email_id, doc.email_template_text)
 
     frappe.msgprint("Email sent successfully.")
 
@@ -50,7 +56,7 @@ def email_format(supplier, items_list, supplier_email_id, email_templete):
         <table border="1" cellspacing="0" cellpadding="5">
             <thead>
                 <tr>
-                    <th>Item Code</th>
+                    <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Price</th>
                 </tr>
