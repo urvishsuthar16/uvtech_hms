@@ -15,11 +15,9 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 	let location_filed = page.add_field({
 		label: 'Location',
-		fieldtype: 'Link',
+		fieldtype: 'Select',
 		fieldname: 'location',
-		options: 'Project',
-		read_only: 1
-
+		reqd: 1
 	});
 	let employee_field = page.add_field({
 		label: 'Employee',
@@ -43,6 +41,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		fieldtype: 'Link',
 		fieldname: 'shift_filter',
 		options: "Shift Type",
+		reqd: 1
 		// read_only: 1
 	});
 
@@ -57,17 +56,17 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		generate_the_list();
 	});
 
-	function generate_the_list() {
+	async function generate_the_list() {
 
 		let current_shift_type = shift_filter_field.get_value();
-		let current_location_filed = location_filed.get_value();
-
+		let res = await frappe.db.get_value('Project', {'project_name': location_filed.get_value() }, ['name']);
+		let current_location_filed = res.message.name
 		if (!current_shift_type) {
 			frappe.msgprint(__('Please select a valid Shift Type before assigning tasks.'));
 			return; // Exit the function if no shift type is selected
 		}
 		if (!current_location_filed) {
-			frappe.msgprint(__('You are not assigned to any Project'));
+			frappe.msgprint(__('Please Select A Location'));
 			return; // Exit the function if no shift type is selected
 		}
 		// Show confirmation popup
@@ -89,7 +88,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						callback: function (response) {
 							shift_filter_field.set_value(current_shift_type);
 							assignTasksTable(userId, current_shift_type, page);
-							update_shift_data_templage(current_shift_type)
+							update_shift_data_templage(current_shift_type, current_location_filed)
 						}
 					});
 				} else {
@@ -108,7 +107,6 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	frappe.db.get_value('Employee', { user_id: frappe.session.user }, ['name', 'default_shift', 'employee_name'])
 		.then(response => {
 			if (!response.message.name){
-				console.log(response.message.name)
 				 return ''
 			}
 			userId = response.message.name;
@@ -120,10 +118,16 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			employee_name_field.set_value(response.message.employee_name);
 
 			// Check for the shift in 'Staff Temporary Data' first
-			frappe.db.get_value('Staff temporary data', { employee_id: userId }, ['shift'])
+			frappe.db.get_value('Staff temporary data', { employee_id: userId }, ['shift', 'location'])
 				.then(tempDataResponse => {
 					let shift = tempDataResponse.message ? tempDataResponse.message.shift : null;
+					let location_val = tempDataResponse.message ? tempDataResponse.message.location : null;
 
+					frappe.db.get_value('Project', location_val, ['project_name'])
+						.then(res => {
+							location_filed.set_value(res.message.project_name)
+						})
+					
 					// If shift is found in 'Staff Temporary Data', use it, otherwise use default shift from 'Employee'
 					if (shift) {
 						shift_filter_field.set_value(shift);
@@ -133,17 +137,19 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 					// Call the function to assign tasks using the correct shift
 					assignTasksTable(userId, shift || defaultShift, page);
 				});
-			frappe.call({
-				method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
-
-				callback: function (response) {
-
-					if (response.message) {
-						location_filed.set_value(response.message);
-					}
-				},
-
-			});
+				frappe.call({
+					method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
+	
+					callback: function (response) {
+	
+						if (response.message) {
+							let project_list = response.message
+							location_filed.df.options = project_list.join("\n"); // Join the list into new line separated values
+							location_filed.refresh();
+						}
+					},
+	
+				});
 		});
 
 
@@ -425,12 +431,12 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	});
 
 
-	function update_shift_data_templage(current_shift_type) {
-
+	function update_shift_data_templage(current_shift_type, project) {
 		frappe.call({
 			method: 'uvtech_hms.hms.page.task_list.task_list.update_shift_value',
 			args: {
-				shift: current_shift_type
+				shift: current_shift_type,
+				location: project
 			},
 			callback: function (r) {
 				frappe.dom.unfreeze();

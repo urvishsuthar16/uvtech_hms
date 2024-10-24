@@ -3,13 +3,7 @@
 
 frappe.query_reports["Task List"] = {
 	"filters": [
-        {
-            "fieldname": "user",
-            "label": __("User"),
-            "fieldtype": "Link",
-            "options": "User",
-            "reqd": 1,  // Required filter
-        },
+       
         {
             "fieldname": "start_date",
             "label": __("Start Date"),
@@ -23,6 +17,18 @@ frappe.query_reports["Task List"] = {
             "fieldtype": "Date",
             "default": frappe.datetime.nowdate(),
             "reqd": 1,  // Required filter
+        },
+        {
+            "fieldname": "shift",
+            "label": __("Shift"),
+            "fieldtype": "Link",
+            "options": "Shift Type",
+        },
+        {
+            "fieldname": "user",
+            "label": __("User"),
+            "fieldtype": "Link",
+            "options": "User",
         },
         {
             "fieldname": "status",

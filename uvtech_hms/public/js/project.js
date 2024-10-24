@@ -105,34 +105,34 @@ frappe.ui.form.on('Project', {
 });
 
 
-frappe.ui.form.on('Project User', {
-    custom_assiged: function (frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
+// frappe.ui.form.on('Project User', {
+//     custom_assiged: function (frm, cdt, cdn) {
+//         let row = locals[cdt][cdn];
 
-        if (row.custom_assiged) {
-            frappe.call({
-                args: {
-                    user: row.user,
-                    project_name: frm.doc.name  // Use the current project's name
-                },
-                method: 'uvtech_hms.update.check_is_user_assigned',  // Path to your Python method
-                callback: function (response) {
-                    if (response.message.status === 'assigned') {
-                        frappe.msgprint({
-                            title: __('User Already Assigned'),
-                            indicator: 'red',
-                            message: __('User {0} is already assigned to projects: {1}',
-                                [row.user, response.message.projects.join(', ')]
-                            )
-                        });
+//         if (row.custom_assiged) {
+//             frappe.call({
+//                 args: {
+//                     user: row.user,
+//                     project_name: frm.doc.name  // Use the current project's name
+//                 },
+//                 method: 'uvtech_hms.update.check_is_user_assigned',  // Path to your Python method
+//                 callback: function (response) {
+//                     if (response.message.status === 'assigned') {
+//                         frappe.msgprint({
+//                             title: __('User Already Assigned'),
+//                             indicator: 'red',
+//                             message: __('User {0} is already assigned to projects: {1}',
+//                                 [row.user, response.message.projects.join(', ')]
+//                             )
+//                         });
 
-                        frappe.model.set_value(cdt, cdn, 'custom_assiged', 0);
-                    }
-                }
-            });
-        }
-    }
-});
+//                         frappe.model.set_value(cdt, cdn, 'custom_assiged', 0);
+//                     }
+//                 }
+//             });
+//         }
+//     }
+// });
 
 
 

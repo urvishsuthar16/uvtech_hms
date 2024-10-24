@@ -110,8 +110,8 @@ function get_price_list(items, frm) {
         if (items[item.item_code]) {
             // If there's a match, set the supplier and price based on the fetched data
             const price_data = items[item.item_code];
-            console.log(item)
-            if (item.require_qty > 0) {
+            let qty = item.require_qty - item.current_qty
+            if (qty > 0) {
                 frappe.model.set_value(item.doctype, item.name, 'supplier', price_data.supplier);
                 frappe.model.set_value(item.doctype, item.name, 'price', price_data.price);
             }

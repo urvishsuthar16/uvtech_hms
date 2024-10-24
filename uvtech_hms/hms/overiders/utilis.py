@@ -66,13 +66,11 @@ def send_email_for_task(shift_type):
 
         # Close the table tags
         content += "</tbody></table>"
-
-        print(content, project_name, 'project_name')
         # Send the email to the owner
         frappe.sendmail(
             recipients=owner,
             cc=email_list,
-            subject="Your Pending Tasks",
+            subject=f"{project_name}-{shift_type}-Pending Tasks",
             expose_recipients='header',
             message=content
         )
