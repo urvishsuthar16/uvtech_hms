@@ -168,56 +168,28 @@ def get_all_task_list(user,shift_type,employee_id):
 @frappe.whitelist()
 def update_shift_value(shift, location):
     user = frappe.session.user
-    # Fetch the employee record based on the logged-in user
     employee = frappe.get_value("Employee", {"user_id": user}, "name")
     
     if employee:
-        # Check if a record with the fetched employee ID exists in "Staff Temporary Data"
         existing_record = frappe.get_all("Staff temporary data", filters={"employee_id": employee}, limit=1)
 
         if existing_record:
-            # If the record exists, update the shift
             doc = frappe.get_doc("Staff temporary data", existing_record[0].name)
+            doc.user_id = user
             doc.shift = shift
             doc.location = location
             doc.save()
         else:
-            # If the record doesn't exist, create a new one
             doc = frappe.get_doc({
                 "doctype": "Staff temporary data",
-                "user": user,
+                "user_id": user,
                 "employee_id": employee,
                 "shift": shift,
                 "location":location,
-                # Add other necessary fields like name and project if available
             })
             doc.insert()
     else:
         frappe.throw(f"No Employee found for the user: {user}")
-
-
-
-@frappe.whitelist()
-def get_user_assigned_project():
-    user = frappe.session.user
-    assigned_project = frappe.db.sql("""
-        SELECT parent 
-        FROM `tabProject User` 
-        WHERE user = %s AND custom_assiged = 1
-    """, user, as_dict=True)
-
-    if assigned_project:
-        print(assigned_project)
-        parent_list = [item['parent'] for item in assigned_project]
-
-        print(parent_list)
-        # Fetch project details based on parent (which refers to the Project doctype)
-        project_name = assigned_project[0].parent
-        project = frappe.get_doc("Project", project_name)
-        return parent_list
-            
-    else:
-        return []
 
 
 
@@ -235,9 +207,13 @@ def get_user_assigned_project():
 #         for item in assigned_project:
 #             project = frappe.get_value("Project", item['parent'], 'project_name')
 #             # Append both project ID and name to the list
-#             project_list.append({
-#                 'project': item['parent'],  # Project ID
-#                 'project_name': project  # Project Name
-#             })
+#             project_list.append(project)
 
 #     return project_list
+
+
+@frappe.whitelist()
+def get_user_assigned_project():
+    user = frappe.session.user
+    location_val = frappe.db.get_value('Staff temporary data', {'user_id': user}, ['location'])
+    return location_val

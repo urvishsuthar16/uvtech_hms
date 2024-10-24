@@ -18,7 +18,6 @@ def execute(filters=None):
         # Adjust the end date to include one more day to capture tasks on the end_date
         end_date = add_days(end_date, 1)
 
-    # Construct the user condition based on the presence of a user filter
     # If no user is selected, return tasks for all users.
     user_condition = ""
     if user:
@@ -41,7 +40,8 @@ def execute(filters=None):
             t.custom_is_attachments_need AS `Is Attachments Need`,
             t.status AS `Status`,
             SUBSTRING_INDEX(GROUP_CONCAT(ci.images), ',', 1) AS `Attachment`,
-            t.modified AS `Last Updated`  -- Include the latest modification date
+            t.creation AS `Last Updated`,
+            t.modified AS `Completed Date`
         FROM 
             `tabTask` t
         LEFT JOIN 
@@ -78,7 +78,8 @@ def execute(filters=None):
     # Define the columns to be displayed in the report
     columns = [
         {"fieldname": "Task ID", "label": "Task ID", "fieldtype": "Data"},
-        {"fieldname": "Last Updated", "label": "Task Date", "fieldtype": "Datetime"},  # Include the Last Updated column
+        {"fieldname": "Last Updated", "label": "Task Date", "fieldtype": "Datetime"},  
+        {"fieldname": "Completed Date", "label": "Completed Date", "fieldtype": "Datetime"}, 
         {"fieldname": "Task Name", "label": "Task Name", "fieldtype": "Data"},
         {"fieldname": "Task Type", "label": "Task Type", "fieldtype": "Data"},
         {"fieldname": "Priority", "label": "Priority", "fieldtype": "Select", "options": "\n".join(["Low", "Medium", "High"])},
