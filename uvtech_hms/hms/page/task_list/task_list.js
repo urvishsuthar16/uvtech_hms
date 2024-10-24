@@ -15,11 +15,9 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 
 	let location_filed = page.add_field({
 		label: 'Location',
-		fieldtype: 'Link',
+		fieldtype: 'Select',
 		fieldname: 'location',
-		options: 'Project',
-		read_only: 1
-
+		reqd: 1
 	});
 	let employee_field = page.add_field({
 		label: 'Employee',
@@ -43,6 +41,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		fieldtype: 'Link',
 		fieldname: 'shift_filter',
 		options: "Shift Type",
+		reqd: 1
 		// read_only: 1
 	});
 
@@ -89,7 +88,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						callback: function (response) {
 							shift_filter_field.set_value(current_shift_type);
 							assignTasksTable(userId, current_shift_type, page);
-							update_shift_data_templage(current_shift_type)
+							update_shift_data_templage(current_shift_type, current_location_filed)
 						}
 					});
 				} else {
@@ -120,10 +119,12 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 			employee_name_field.set_value(response.message.employee_name);
 
 			// Check for the shift in 'Staff Temporary Data' first
-			frappe.db.get_value('Staff temporary data', { employee_id: userId }, ['shift'])
+			frappe.db.get_value('Staff temporary data', { employee_id: userId }, ['shift', 'location'])
 				.then(tempDataResponse => {
 					let shift = tempDataResponse.message ? tempDataResponse.message.shift : null;
-
+					let location_val = tempDataResponse.message ? tempDataResponse.message.location : null;
+					location_filed.set_value(location_val)
+					console.log(location_val)
 					// If shift is found in 'Staff Temporary Data', use it, otherwise use default shift from 'Employee'
 					if (shift) {
 						shift_filter_field.set_value(shift);
@@ -133,17 +134,20 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 					// Call the function to assign tasks using the correct shift
 					assignTasksTable(userId, shift || defaultShift, page);
 				});
-			frappe.call({
-				method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
-
-				callback: function (response) {
-
-					if (response.message) {
-						location_filed.set_value(response.message);
-					}
-				},
-
-			});
+				frappe.call({
+					method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
+	
+					callback: function (response) {
+	
+						if (response.message) {
+							let project_list = response.message
+							console.log(response.message)
+							location_filed.df.options = project_list.join("\n"); // Join the list into new line separated values
+						location_filed.refresh();
+						}
+					},
+	
+				});
 		});
 
 
@@ -425,12 +429,13 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 	});
 
 
-	function update_shift_data_templage(current_shift_type) {
-
+	function update_shift_data_templage(current_shift_type, project) {
+		console.log(project, 'fff')
 		frappe.call({
 			method: 'uvtech_hms.hms.page.task_list.task_list.update_shift_value',
 			args: {
-				shift: current_shift_type
+				shift: current_shift_type,
+				location: project
 			},
 			callback: function (r) {
 				frappe.dom.unfreeze();
