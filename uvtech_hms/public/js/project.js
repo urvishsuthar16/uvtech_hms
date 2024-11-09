@@ -51,23 +51,23 @@ frappe.ui.form.on('Project', {
             "Low": 4
         };
 
-        tasks.sort((a, b) => {
-            // Sort by 'assign' field (assign should be at the top)
-            if (a.assign !== b.assign) {
-                return a.assign > b.assign ? -1 : 1;  // Change comparison to bring assigned tasks at the top
-            }
+        // tasks.sort((a, b) => {
+        //     // Sort by 'assign' field (assign should be at the top)
+        //     if (a.assign !== b.assign) {
+        //         return a.assign > b.assign ? -1 : 1;  // Change comparison to bring assigned tasks at the top
+        //     }
 
-            // Sort by shift (morning shift should come first)
-            if (a.shift !== b.shift) {
-                return (a.shift === "Morning") ? -1 : 1;  // Morning shift first
-            }
-            if (a.type !== b.type) {
-                return (a.type === "Weekly") ? -1 : 1;  //  shift first
-            }
+        //     // Sort by shift (morning shift should come first)
+        //     if (a.shift !== b.shift) {
+        //         return (a.shift === "Morning") ? -1 : 1;  // Morning shift first
+        //     }
+        //     if (a.type !== b.type) {
+        //         return (a.type === "Weekly") ? -1 : 1;  //  shift first
+        //     }
 
-            // Sort by priority based on the defined order (Urgent > High > Medium > Low)
-            return (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
-        });
+        //     // Sort by priority based on the defined order (Urgent > High > Medium > Low)
+        //     return (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5);
+        // });
 
         // Clear the table and re-add the sorted tasks
         frm.clear_table('custom_assign_task');

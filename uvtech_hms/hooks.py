@@ -28,7 +28,7 @@ web_include_js = "/assets/uvtech_hms/js/uvtech_hms.js"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Task" : "/public/js/task.js", "Project" : "public/js/project.js", "User" : "public/js/user.js",}
+doctype_js = {"Task" : "/public/js/task.js", "Project" : "public/js/project.js", "User" : "public/js/user.js", "Employee" : "public/js/employee.js"}
 doctype_list_js = {"Task" : "public/js/task_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

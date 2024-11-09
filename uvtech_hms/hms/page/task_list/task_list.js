@@ -87,7 +87,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						},
 						callback: function (response) {
 							shift_filter_field.set_value(current_shift_type);
-							assignTasksTable(userId, current_shift_type, page);
+							assignTasksTable(userId, current_shift_type, page, current_location_filed);
 							update_shift_data_templage(current_shift_type, current_location_filed)
 						}
 					});
@@ -135,7 +135,7 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						shift_filter_field.set_value(defaultShift);
 					}
 					// Call the function to assign tasks using the correct shift
-					assignTasksTable(userId, shift || defaultShift, page);
+					assignTasksTable(userId, shift || defaultShift, page, location_val);
 				});
 				frappe.call({
 					method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
@@ -445,13 +445,14 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 		})
 	}
 
-	function assignTasksTable(userId, shift, page) {
+	function assignTasksTable(userId, shift, page, location_val) {
 		frappe.call({
 			method: 'uvtech_hms.hms.page.task_list.task_list.get_all_task_list',
 			args: {
 				user: frappe.session.user,
 				employee_id: userId,
-				shift_type: shift
+				shift_type: shift,
+				project: location_val
 			},
 			callback: function (response) {
 				let all_task_list = response.message.tasks;

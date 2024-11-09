@@ -122,7 +122,6 @@
    "width": "50%"
   },
   {
-   "default": "Today",
    "fieldname": "attendance_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -214,6 +213,7 @@
    "fetch_from": "employee.custom_standard_rate",
    "fieldname": "standard__rate",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Standard  Rate",
    "precision": "2",
    "read_only": 1
@@ -222,6 +222,7 @@
    "fetch_from": "employee.custom_extra_rate",
    "fieldname": "extra_rate",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Extra Rate",
    "read_only": 1
   },
@@ -250,7 +251,7 @@
  ],
  "icon": "fa fa-ok",
  "links": [],
- "modified": "2024-10-09 19:06:26.834487",
+ "modified": "2024-11-09 21:21:28.472008",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Hms Attendance",
