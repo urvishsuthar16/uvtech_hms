@@ -133,7 +133,7 @@ def delete_existing_tasks(employee_id, shift_type, project):
     assign_task(user, shift_type, employee_id, project)
 
 @frappe.whitelist()
-def get_all_task_list(user,shift_type,employee_id):
+def get_all_task_list(user,shift_type,employee_id, project):
     # assign_task(user,shift_type,employee_id)
     todays_date=frappe.utils.getdate()
     today_completed_tasks = frappe.db.sql("""
@@ -149,11 +149,19 @@ def get_all_task_list(user,shift_type,employee_id):
         AND type IN ('Daily', 'Weekly')
         AND status = 'Open' """,({"owner":user,"date":todays_date}),as_dict=1)
     
-    all_task_list =  open_task_list + today_completed_tasks
+    project_tasks = frappe.get_doc("Project", project)
+    task_order = [task.subject for task in project_tasks.custom_assign_task]
+
+    ordered_open_task_list = sorted(
+        open_task_list,
+        key=lambda task: task_order.index(task.get('subject', '')) if task.get('subject') in task_order else len(task_order)
+    )
+
+    all_task_list =  ordered_open_task_list + today_completed_tasks
 
     total_tasks = len(all_task_list)
     total_completed_tasks = len(today_completed_tasks)
-    total_pending_tasks = len(open_task_list)
+    total_pending_tasks = len(ordered_open_task_list)
 
     # Return the tasks and counts
     return {
@@ -193,27 +201,27 @@ def update_shift_value(shift, location):
 
 
 
-# @frappe.whitelist()
-# def get_user_assigned_project():
-#     user = frappe.session.user
-#     assigned_project = frappe.db.sql("""
-#         SELECT parent 
-#         FROM `tabProject User` 
-#         WHERE user = %s AND custom_assiged = 1
-#     """, user, as_dict=True)
-
-#     project_list = []
-#     if assigned_project:
-#         for item in assigned_project:
-#             project = frappe.get_value("Project", item['parent'], 'project_name')
-#             # Append both project ID and name to the list
-#             project_list.append(project)
-
-#     return project_list
-
-
 @frappe.whitelist()
 def get_user_assigned_project():
     user = frappe.session.user
-    location_val = frappe.db.get_value('Staff temporary data', {'user_id': user}, ['location'])
-    return location_val
+    assigned_project = frappe.db.sql("""
+        SELECT parent 
+        FROM `tabProject User` 
+        WHERE user = %s AND custom_assiged = 1
+    """, user, as_dict=True)
+
+    project_list = []
+    if assigned_project:
+        for item in assigned_project:
+            project = frappe.get_value("Project", item['parent'], 'project_name')
+            # Append both project ID and name to the list
+            project_list.append(project)
+
+    return project_list
+
+
+# @frappe.whitelist()
+# def get_user_assigned_project():
+#     user = frappe.session.user
+#     location_val = frappe.db.get_value('Staff temporary data', {'user_id': user}, ['location'])
+#     return location_val

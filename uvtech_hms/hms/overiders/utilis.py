@@ -88,18 +88,8 @@ def task_priority(doc,method=None):
 
 
 def get_user_assigned_project(user):
-    
-    assigned_project = frappe.db.sql("""
-        SELECT parent 
-        FROM `tabProject User` 
-        WHERE user = %s AND custom_assiged = 1
-    """, user, as_dict=True)
-
-    if assigned_project:
-        # Fetch project details based on parent (which refers to the Project doctype)
-        project_name = assigned_project[0].parent
-        project = frappe.get_doc("Project", project_name)
-        return project.project_name
-            
-    else:
+    assigned_project = frappe.get_value("Staff temporary data", {'user_id': user}, 'location')
+    if assigned_project :
+        return assigned_project
+    else :
         return ''

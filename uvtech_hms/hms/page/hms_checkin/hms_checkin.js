@@ -154,10 +154,9 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 				if (response.message) {
 					let attendance = response.message;
 					shift_filter_field.$input.attr('readonly', true);
-
 					// Set the shift and show stop button
 					shift_filter_field.set_value(attendance[2]);
-					
+					select_date_time.set_value(response.message[1])
 					status = 'Running...';
 					update_status('green', status);
 

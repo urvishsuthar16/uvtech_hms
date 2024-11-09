@@ -1,6 +1,6 @@
 import frappe
 import json
-from datetime import date , datetime
+from datetime import date , datetime, timedelta
 from frappe.utils import today, now
 
 @frappe.whitelist()
@@ -22,16 +22,27 @@ def create_attendance(user, employee_id, shift_type, select_date_time):
 			if existing_attendace[-1].out_time and shift_type == existing_attendace[-1].shift:
 				frappe.throw(f'Attendance already Exist for today for this shift')
 			else:
-				if existing_attendace[-1].in_time and shift_type == existing_attendace[-1].shift:
-					frappe.db.set_value('Hms Attendance', existing_attendace[-1].name, {
-						'status': 'Present',
-						'shift': shift_type,
-						'out_time': select_date_time
-					})
+				select_date_time = datetime.strptime(select_date_time, "%Y-%m-%d %H:%M:%S")
 
-					return True
-				elif not existing_attendace[-1].get("out_time") and shift_type != existing_attendace[-1].shift:
-					frappe.throw(f'End other Shift to start this one')
+				if existing_attendace[-1].in_time and shift_type == existing_attendace[-1].shift:
+					time_difference = select_date_time - existing_attendace[-1].in_time
+					if time_difference >= timedelta(hours=1):
+						
+						working_hours = time_difference.total_seconds() / 3600  # Convert seconds to hours
+						
+						
+						# Update the Hms Attendance doctype with calculated values
+						frappe.db.set_value('Hms Attendance', existing_attendace[-1].name, {
+							'status': 'Present',
+							'shift': shift_type,
+							'out_time': select_date_time,
+							'working_hours': working_hours,
+							
+						})
+						return True
+					
+					else:
+						frappe.throw("Out time must be at least one hour after in time.")
 
 				elif shift_type != existing_attendace[-1].shift:
 					hms_attendance = frappe.get_doc({
@@ -39,7 +50,8 @@ def create_attendance(user, employee_id, shift_type, select_date_time):
 						'employee': employee_id,
 						'status': 'Present',
 						'shift': shift_type,
-						'in_time': select_date_time
+						'in_time': select_date_time,
+						"attendance_date": select_date_time
 						})
 					hms_attendance.insert(ignore_permissions=True)
 					return True
@@ -49,7 +61,8 @@ def create_attendance(user, employee_id, shift_type, select_date_time):
 			'employee': employee_id,
 			'status': 'Present',
 			'shift': shift_type,
-			'in_time': select_date_time
+			'in_time': select_date_time,
+			'attendance_date':select_date_time
 			})
 			hms_attendance.insert(ignore_permissions=True)
 			return True

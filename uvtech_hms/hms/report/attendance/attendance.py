@@ -11,15 +11,15 @@ def execute(filters=None):
         SELECT 
             attendance_date AS `Attendance Date`,
             employee AS `Employee`,
-            employee_name AS `Employee Name`,
             standard_hours AS `Standard Hours`,
             extra_hours AS `Extra Hours`,
-            (standard_hours + extra_hours) AS `Working Hours`,
-            standard__rate AS `Standard Rate`,
+            hours AS `Working Hours`,
+            standard_rate AS `Standard Rate`,
             extra_rate AS `Extra Rate`,
-            (standard_hours * standard__rate + extra_hours * extra_rate) AS `Total Amount`
+            amount AS `Total Amount`,
+            employee_name AS `Employee Name`
         FROM 
-            `tabHms Attendance`
+            `tabtimesheet table`
         WHERE 
             employee = %(employee)s
             AND attendance_date BETWEEN %(start_date)s AND %(end_date)s
@@ -33,7 +33,6 @@ def execute(filters=None):
         'start_date': start_date,
         'end_date': end_date
     }, as_dict=True)
-    
     # Return columns and data
     columns = [
         {"fieldname": "Attendance Date", "label": "Attendance Date", "fieldtype": "Date"},
