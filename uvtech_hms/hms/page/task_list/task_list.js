@@ -127,6 +127,20 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						.then(res => {
 							location_filed.set_value(res.message.project_name)
 						})
+					frappe.call({
+							method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',
+			
+							callback: function (response) {
+			
+								if (response.message) {
+									let project_list = response.message
+									console.log(project_list, 'ra,   aaa')
+									location_filed.set_value(project_list[0])
+									location_filed.refresh();
+								}
+							},
+			
+						});
 					
 					// If shift is found in 'Staff Temporary Data', use it, otherwise use default shift from 'Employee'
 					if (shift) {
@@ -135,7 +149,10 @@ frappe.pages['task-list'].on_page_load = function (wrapper) {
 						shift_filter_field.set_value(defaultShift);
 					}
 					// Call the function to assign tasks using the correct shift
-					assignTasksTable(userId, shift || defaultShift, page, location_val);
+					if (tempDataResponse.message.location){
+						console.log(tempDataResponse.message.location, 'reso')
+						assignTasksTable(userId, shift || defaultShift, page, location_val);
+					}
 				});
 				frappe.call({
 					method: 'uvtech_hms.hms.page.task_list.task_list.get_user_assigned_project',

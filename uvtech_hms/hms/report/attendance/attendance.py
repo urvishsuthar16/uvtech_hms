@@ -33,7 +33,28 @@ def execute(filters=None):
         'start_date': start_date,
         'end_date': end_date
     }, as_dict=True)
-    # Return columns and data
+
+    # Calculate totals for specific fields
+    total_standard_hours = sum(d.get("Standard Hours", 0) for d in data)
+    total_extra_hours = sum(d.get("Extra Hours", 0) for d in data)
+    total_working_hours = sum(d.get("Working Hours", 0) for d in data)
+    total_amount = sum(d.get("Total Amount", 0) for d in data)
+
+    # Append a row for the totals at the end of the data list
+    total_row = {
+        "Attendance Date": "",
+        "Employee": "",
+        "Employee Name": "Total",
+        "Standard Hours": total_standard_hours,
+        "Extra Hours": total_extra_hours,
+        "Working Hours": total_working_hours,
+        "Standard Rate": "",
+        "Extra Rate": "",
+        "Total Amount": total_amount
+    }
+    data.append(total_row)
+
+    # Define columns
     columns = [
         {"fieldname": "Attendance Date", "label": "Attendance Date", "fieldtype": "Date"},
         {"fieldname": "Employee", "label": "Employee", "fieldtype": "Link", "options": "Employee"},

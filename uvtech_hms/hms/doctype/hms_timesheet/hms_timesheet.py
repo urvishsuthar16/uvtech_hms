@@ -4,6 +4,9 @@ from datetime import datetime
 
 class HmsTimesheet(Document):
     def validate(self):
+        # Clear the timesheet table before adding new entries
+        self.timesheet_table = []
+
         # Check for overlapping date ranges for the selected employee
         overlapping_timesheets = frappe.db.sql("""
             SELECT name FROM `tabHms Timesheet`
@@ -12,12 +15,12 @@ class HmsTimesheet(Document):
                 (start_date <= %(end_date)s AND end_date >= %(start_date)s)
             )
             AND name != %(current_name)s
-        """, {
-            "employee": self.employee,
-            "start_date": self.start_date,
-            "end_date": self.end_date,
-            "current_name": self.name or ""
-        })
+            """, {
+                "employee": self.employee,
+                "start_date": self.start_date,
+                "end_date": self.end_date,
+                "current_name": self.name or ""
+            })
 
         if overlapping_timesheets:
             frappe.throw("This employee already has a timesheet in the specified date range.")
@@ -61,12 +64,7 @@ class HmsTimesheet(Document):
                 standard_amount = standard_rate * record.working_hours
                 extra_hours = max(record.working_hours - standard_hours, 0)
                 extra_amount = extra_rate * extra_hours
-                amount = 0
-                if extra_hours > 0:
-                    amount = extra_amount +  standard_rate * standard_hours
-                else:
-                    amount = standard_amount
-
+                amount = extra_amount + (standard_rate * standard_hours if extra_hours > 0 else standard_amount)
 
                 in_time_str = record.in_time.strftime("%H:%M:%S") if record.in_time else None
                 out_time_str = record.out_time.strftime("%H:%M:%S") if record.out_time else None

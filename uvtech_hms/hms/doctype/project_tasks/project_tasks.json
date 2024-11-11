@@ -16,10 +16,8 @@
  ],
  "fields": [
   {
-   "columns": 2,
    "fieldname": "task_id",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Task ID",
    "options": "Task"
   },
@@ -73,7 +71,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-15 14:56:58.055852",
+ "modified": "2024-11-11 15:14:52.687030",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "Project Tasks",
