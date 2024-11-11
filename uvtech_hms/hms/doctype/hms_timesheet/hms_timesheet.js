@@ -1,4 +1,9 @@
 frappe.ui.form.on('Hms Timesheet', {
+    refresh: function(frm) {
+        frm.set_df_property('timesheet_table', 'cannot_add_rows', true); // Hide add row button
+        frm.set_df_property('timesheet_table', 'cannot_delete_rows', true); // Hide delete button
+        frm.set_df_property('timesheet_table', 'cannot_delete_all_rows', true); // Hide delete all button
+     },
     onload_post_render(frm) {
         if (frm.is_new()) {
 
