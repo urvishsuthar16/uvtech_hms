@@ -148,12 +148,12 @@ scheduler_events = {
 # # 	"all": [
 # # 		"uvtech_hms.tasks.all"
 # # 	],
-		"cron":{
+		# "cron":{
 			
-			"0 */4 * * *": [
-				"uvtech_hms.hms.overiders.utilis.remove_default_shift"
-			],
-		},
+		# 	"0 */4 * * *": [
+		# 		"uvtech_hms.hms.overiders.utilis.remove_default_shift"
+		# 	],
+		# },
         "hourly": [
 				"uvtech_hms.hms.overiders.utilis.test_time"
 		],
