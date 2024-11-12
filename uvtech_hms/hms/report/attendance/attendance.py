@@ -10,6 +10,7 @@ def execute(filters=None):
     query = """
         SELECT 
             attendance_date AS `Attendance Date`,
+            shift AS `Shift`,
             employee AS `Employee`,
             standard_hours AS `Standard Hours`,
             extra_hours AS `Extra Hours`,
@@ -56,15 +57,16 @@ def execute(filters=None):
 
     # Define columns
     columns = [
-        {"fieldname": "Attendance Date", "label": "Attendance Date", "fieldtype": "Date"},
-        {"fieldname": "Employee", "label": "Employee", "fieldtype": "Link", "options": "Employee"},
-        {"fieldname": "Employee Name", "label": "Employee Name", "fieldtype": "Data"},
-        {"fieldname": "Standard Hours", "label": "Standard Hours", "fieldtype": "Float", "precision": 2},
-        {"fieldname": "Extra Hours", "label": "Extra Hours", "fieldtype": "Float", "precision": 2},
-        {"fieldname": "Working Hours", "label": "Working Hours", "fieldtype": "Float", "precision": 2},
-        {"fieldname": "Standard Rate", "label": "Standard Rate", "fieldtype": "Currency", "precision": 2},
-        {"fieldname": "Extra Rate", "label": "Extra Rate", "fieldtype": "Currency", "precision": 2},
-        {"fieldname": "Total Amount", "label": "Total Amount", "fieldtype": "Currency", "precision": 2}
+        {"fieldname": "Attendance Date", "label": "Attendance Date", "fieldtype": "Date", "width": 180},
+        {"fieldname": "Shift", "label": "Shift", "fieldtype": "Data",  "width": 100},
+        {"fieldname": "Employee", "label": "Employee", "fieldtype": "Link", "options": "Employee",  "width": 150},
+        {"fieldname": "Employee Name", "label": "Employee Name", "fieldtype": "Data",  "width": 150},
+        {"fieldname": "Standard Hours", "label": "Standard Hours", "fieldtype": "Float", "precision": 2,  "width": 100},
+        {"fieldname": "Extra Hours", "label": "Extra Hours", "fieldtype": "Float", "precision": 2,  "width": 100},
+        {"fieldname": "Working Hours", "label": "Working Hours", "fieldtype": "Float", "precision": 2,  "width": 100},
+        {"fieldname": "Standard Rate", "label": "Standard Rate", "fieldtype": "Currency", "precision": 2,  "width": 100},
+        {"fieldname": "Extra Rate", "label": "Extra Rate", "fieldtype": "Currency", "precision": 2,  "width": 100},
+        {"fieldname": "Total Amount", "label": "Total Amount", "fieldtype": "Currency", "precision": 2,  "width": 120}
     ]
     
     return columns, data
