@@ -110,35 +110,75 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 	// Stop button event with animation and status update
 	button_container.find('.btn-stop').on('click', async function () {
 		let employeeName = employee_field.get_value();
-		let select_date = select_date_time.get_value();
-
-		// Confirmation prompt before stopping the time
-		frappe.confirm(
-			'Are you sure you want to complete the shift?',
-			async () => {
-				try {
-					let result = await create_attendance(frappe.session.user, employeeName, shift_filter_field.get_value(), select_date, 'stop');
-					shift_filter_field.$input.attr('readonly', false);
-					// CSS Animation Example: Change background color for success
-					$(this).css("background-color", "lightcoral").animate({ backgroundColor: "#dc3545" }, 1000);
-	
-					status = 'Stopped';
-					update_status('red', status);
-	
-					$(this).fadeOut(500, function () {
-						button_container.find('.btn-start').fadeIn(500);
-					});
-				} catch (error) {
-					console.error('Error stopping attendance:', error);
-					// You could add error handling animations here as well
-				}
+		let select_date = new Date(select_date_time.get_value());  // Convert select_date to Date object
+		frappe.call({
+			method: 'uvtech_hms.hms.page.hms_checkin.hms_checkin.get_running_attendance',
+			args: {
+				employee_id: employeeName,
 			},
-			() => {
-				// Action to take if the user cancels the confirmation (optional)
-				console.log('Stop action cancelled');
+			callback: function (response) {
+				if (response.message) {
+					let in_time = new Date(Date.parse(response.message[1]));  // Parse in_time to Date object
+
+					// Format in_time to a readable date string (e.g., 'DD-MM-YYYY')
+					let formatted_in_time = in_time.toLocaleDateString('en-GB');  // Adjust locale as needed
+					const isNightShift = shift_filter_field.get_value() === 'Night';
+					let targetDate = select_date.getDate();
+					console.log(targetDate)
+					console.log(in_time.getDate(), 'aa')
+					// If it's a night shift, the selected date should be the next day
+					if (isNightShift) {
+						targetDate -= 1;
+					}
+
+					// Compare year, month, and day
+					if (
+						in_time.getFullYear() !== select_date.getFullYear() ||
+						in_time.getMonth() !== select_date.getMonth() ||
+						in_time.getDate() !== targetDate
+					) {
+						frappe.msgprint({
+							title: 'Date Mismatch',
+							message: `Current attendance is running on ${formatted_in_time}. Please select the correct date and time.`,
+							indicator: 'red'
+						});
+						return;  // Stop further execution
+					}
+
+
+					let timeDifference = select_date - in_time;
+					let oneHourInMilliseconds = 60 * 60 * 1000; // 1 hour in milliseconds
+
+					if (timeDifference >= oneHourInMilliseconds) {
+						frappe.confirm(
+							'Are you sure you want to complete the shift?',
+							async () => {
+								try {
+									let result = await close_the_attendance(frappe.session.user, employeeName, shift_filter_field.get_value(), select_date_time.get_value(), 'stop');
+									shift_filter_field.$input.attr('readonly', false);
+
+									button_container.find('.btn-stop').css("background-color", "lightcoral").animate({ backgroundColor: "#dc3545" }, 1000);
+
+									button_container.find('.btn-stop').fadeOut(500, function () {
+										button_container.find('.btn-start').fadeIn(500);
+									});
+
+									status = 'Stopped';
+									update_status('red', status);
+
+								} catch (error) {
+									console.error('Error stopping attendance:', error);
+								}
+							}
+						);
+					} else {
+						frappe.throw("Out time must be at least one hour after in time.");
+					}
+				}
 			}
-		);
+		});
 	});
+
 	
 	function update_status(color, statusText) {
 		$('#status-message').css('color', color).text(`Status: ${statusText}`);
@@ -174,6 +214,32 @@ function create_attendance(userId, employee_id, shift_type, select_date_time, ac
 	return new Promise((resolve, reject) => {
 		frappe.call({
 			method: 'uvtech_hms.hms.page.hms_checkin.hms_checkin.create_attendance',
+			args: {
+				user: userId,
+				employee_id: employee_id,
+				shift_type: shift_type,
+				action: action,
+				select_date_time: select_date_time
+			},
+			callback: function (response) {
+				if (response.message) {
+					resolve(response.message);
+				} else {
+					reject('No response from server.');
+				}
+			},
+			error: function (error) {
+				console.error('Error:', error);
+				reject(error);
+			}
+		});
+	});
+}
+
+function close_the_attendance(userId, employee_id, shift_type, select_date_time, action) {
+	return new Promise((resolve, reject) => {
+		frappe.call({
+			method: 'uvtech_hms.hms.page.hms_checkin.hms_checkin.update_attendance',
 			args: {
 				user: userId,
 				employee_id: employee_id,

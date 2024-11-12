@@ -32,8 +32,7 @@ class HmsTimesheet(Document):
                 'attendance_date': ['between', [self.start_date, self.end_date]],
                 'status': 'Present'
             },
-            fields=['name', 'in_time', 'out_time', 'attendance_date', 'status', 'employee', 'employee_name',
-                    'working_hours']
+            fields=['name', 'in_time', 'out_time', 'attendance_date', 'status', 'employee', 'employee_name', 'shift', 'working_hours']
         )
 
         employee_rates = frappe.get_all('Employee Rates',
@@ -44,6 +43,11 @@ class HmsTimesheet(Document):
         rates_by_day = {rate.day: rate for rate in employee_rates}
 
         existing_attendance = [row.attendance_date for row in self.timesheet_table]
+
+        if len(hms_attendance) == 0:
+            frappe.throw("No attendance records found for the specified date range. Please verify the dates and try again.")
+
+        
         for record in hms_attendance:
             if str(record.attendance_date) not in existing_attendance:
                 # Determine the weekday of the attendance date
@@ -84,7 +88,8 @@ class HmsTimesheet(Document):
                     "hours": record.working_hours,
                     'amount': amount,
                     'status': record.status,
-                    'employee_name': record.employee_name
+                    'employee_name': record.employee_name,
+                    "shift": record.shift
                 })
         
         # Calculate and update total hours and total amount in the timesheet

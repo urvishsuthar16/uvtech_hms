@@ -20,7 +20,8 @@
   "amount",
   "attendance_date",
   "standard_amount",
-  "extra_amount"
+  "extra_amount",
+  "shift"
  ],
  "fields": [
   {
@@ -119,12 +120,19 @@
    "fieldname": "employee_name",
    "fieldtype": "Data",
    "label": "Employee name"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Shift",
+   "options": "Shift Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-11-09 23:05:11.297881",
+ "modified": "2024-11-12 17:32:11.002129",
  "modified_by": "Administrator",
  "module": "hms",
  "name": "timesheet table",
