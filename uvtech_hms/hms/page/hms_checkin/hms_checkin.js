@@ -120,32 +120,6 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 				if (response.message) {
 					let in_time = new Date(Date.parse(response.message[1]));  // Parse in_time to Date object
 
-					// Format in_time to a readable date string (e.g., 'DD-MM-YYYY')
-					let formatted_in_time = in_time.toLocaleDateString('en-GB');  // Adjust locale as needed
-					const isNightShift = shift_filter_field.get_value() === 'Night';
-					let targetDate = select_date.getDate();
-					console.log(targetDate)
-					console.log(in_time.getDate(), 'aa')
-					// If it's a night shift, the selected date should be the next day
-					if (isNightShift) {
-						targetDate -= 1;
-					}
-
-					// Compare year, month, and day
-					if (
-						in_time.getFullYear() !== select_date.getFullYear() ||
-						in_time.getMonth() !== select_date.getMonth() ||
-						in_time.getDate() !== targetDate
-					) {
-						frappe.msgprint({
-							title: 'Date Mismatch',
-							message: `Current attendance is running on ${formatted_in_time}. Please select the correct date and time.`,
-							indicator: 'red'
-						});
-						return;  // Stop further execution
-					}
-
-
 					let timeDifference = select_date - in_time;
 					let oneHourInMilliseconds = 60 * 60 * 1000; // 1 hour in milliseconds
 
@@ -196,7 +170,6 @@ frappe.pages['hms-checkin'].on_page_load = function (wrapper) {
 					shift_filter_field.$input.attr('readonly', true);
 					// Set the shift and show stop button
 					shift_filter_field.set_value(attendance[2]);
-					select_date_time.set_value(response.message[1])
 					status = 'Running...';
 					update_status('green', status);
 
